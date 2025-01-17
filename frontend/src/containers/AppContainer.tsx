@@ -29,6 +29,8 @@ import {
 import { AdapterLuxon } from "@mui/x-date-pickers/AdapterLuxon";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import DeleteIcon from "@mui/icons-material/Delete";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 import { AppState } from "../store/reducer";
 import { Stack } from "@mui/material";
@@ -232,6 +234,152 @@ const routeDefauls: Route = {
   },
 };
 
+interface Group {
+  name: string;
+  rows: number[];
+}
+
+interface Coordinates {
+  x: number;
+  y: number;
+}
+
+interface GroupEditorProps {
+  group: Group;
+  groupIndex: number;
+  rows: RowData[];
+  groups: Group[];
+  onGroupChange: (newGroups: Group[]) => void;
+}
+
+const GroupEditor = ({
+  group,
+  groupIndex,
+  rows,
+  groups,
+  onGroupChange,
+}: GroupEditorProps) => {
+  const handleStartOrEndIndexChange = useCallback(
+    ({ startIndex, endIndex }: { startIndex?: number; endIndex?: number }) => {
+      for (let i = 0; i < groups.length; i++) {
+        const group = groups[i];
+
+        if (
+          (i === 0 && startIndex !== 0) ||
+          (i === groups.length - 1 && startIndex !== rows.length - 1)
+        ) {
+          // Can only select first index for first group and last index for last group
+          return;
+        }
+
+        if (i === groupIndex - 1 && startIndex) {
+          groups[i].rows = [...groups[i].rows, startIndex];
+        }
+
+        if (i === groupIndex) {
+          if (startIndex) {
+            const endIndex = Math.max(...group.rows);
+            groups[i].rows = Array.from(
+              { length: endIndex - startIndex + 1 },
+              (_, i) => startIndex + i
+            );
+          } else if (endIndex) {
+            const startIndex = Math.min(...group.rows);
+            groups[i].rows = Array.from(
+              { length: endIndex - startIndex + 1 },
+              (_, i) => startIndex + i
+            );
+          }
+        }
+
+        if (i === groupIndex + 1 && endIndex) {
+          const endIndex = Math.max(...group.rows);
+        }
+      }
+    },
+    [group, groups, onGroupChange, groupIndex]
+  );
+
+  return (
+    <Box sx={{ mb: 2 }}>
+      <Stack direction="row" spacing={2} alignItems="center">
+        <TextField
+          label={`Назва групи ${groupIndex + 1}`}
+          value={group.name}
+          onChange={(e) => {
+            const newGroups = [...groups];
+            newGroups[groupIndex].name = e.target.value;
+            onGroupChange(newGroups);
+          }}
+          sx={{
+            width: 300,
+            "& .MuiInputBase-input": {
+              padding: "5px",
+            },
+          }}
+        />
+        <Stack direction="row" spacing={2} alignItems="center">
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Typography>
+              Підрозділи: {Math.min(...group.rows) + 1} - {Math.max(...group.rows) + 1}
+            </Typography>
+            <IconButton
+              onClick={() => {
+                const currentStart = Math.min(...group.rows);
+                const newStart = currentStart - 1;
+
+                const prevGroup = groups[groupIndex - 1];
+
+                if(newStart < 0 || (prevGroup && prevGroup.rows.length === 1)) {
+                  return;
+                }
+
+                const newGroups = [...groups];
+                // Remove the new index from other groups
+                newGroups.forEach((g, i) => {
+                  if (i !== groupIndex) {
+                    g.rows = g.rows.filter(r => r !== currentStart - 1);
+                  }
+                });
+                // Add new index to current group
+                newGroups[groupIndex].rows = [...group.rows, currentStart - 1];
+                onGroupChange(newGroups);
+              }}
+            >
+              <ArrowBackIcon />
+            </IconButton>
+            <IconButton
+              onClick={() => {
+                const currentEnd = Math.max(...group.rows);
+                const newEnd = currentEnd + 1;
+
+                const nextGroup = groups[groupIndex + 1];
+
+                if(newEnd > rows.length - 1 || (nextGroup && nextGroup.rows.length === 1)) {
+                  return;
+                }
+
+                const newGroups = [...groups];
+                // Remove the new index from other groups
+                newGroups.forEach((g, i) => {
+                  if (i !== groupIndex) {
+                    g.rows = g.rows.filter((r) => r !== currentEnd + 1);
+                  }
+                });
+                // Add new index to current group
+                newGroups[groupIndex].rows = [...group.rows, currentEnd + 1];
+                onGroupChange(newGroups);
+              }}
+            >
+              <ArrowForwardIcon />
+            </IconButton>
+          </Stack>
+        </Stack>
+      </Stack>
+    </Box>
+  );
+};
+
 const AppContainer = () => {
   const dispatch = useDispatch();
   const getMyself = useSelector((state: AppState) => state.actions.getMyself);
@@ -415,87 +563,20 @@ const AppContainer = () => {
                   Групи підрозділів
                 </Typography>
                 {formik.values.groups.map((group, groupIndex) => (
-                  <Box key={groupIndex} sx={{ mb: 2 }}>
-                    <Stack direction="row" spacing={2} alignItems="center">
-                      <TextField
-                        label={`Назва групи ${groupIndex + 1}`}
-                        value={group.name}
-                        onChange={(e) => {
-                          const newGroups = [...formik.values.groups];
-                          newGroups[groupIndex].name = e.target.value;
-                          formik.setFieldValue("groups", newGroups);
-                        }}
-                        sx={{
-                          width: 300,
-                          "& .MuiInputBase-input": {
-                            padding: "5px",
-                          },
-                        }}
-                      />
-                      <Stack direction="row" spacing={2}>
-                        <FormControl sx={{ width: 200 }}>
-                          <InputLabel>Початковий підрозділ</InputLabel>
-                          <Select
-                            value={Math.min(...group.rows) || 0}
-                            onChange={(e) => {
-                              const startIndex = e.target.value as number;
-                              const endIndex = Math.max(...group.rows);
-                              const newRows = Array.from(
-                                { length: endIndex - startIndex + 1 },
-                                (_, i) => startIndex + i
-                              );
-                              const newGroups = [...formik.values.groups];
-                              newGroups[groupIndex].rows = newRows;
-                              formik.setFieldValue("groups", newGroups);
-                            }}
-                          >
-                            {route.rows.map((_, index) => (
-                              <MenuItem
-                                key={index}
-                                value={index}
-                                disabled={formik.values.groups.some(
-                                  (g, i) =>
-                                    i !== groupIndex && g.rows.includes(index)
-                                )}
-                              >
-                                Підрозділ {index + 1}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-                        <FormControl sx={{ width: 200 }}>
-                          <InputLabel>Кінцевий підрозділ</InputLabel>
-                          <Select
-                            value={Math.max(...group.rows) || 0}
-                            onChange={(e) => {
-                              const endIndex = e.target.value as number;
-                              const startIndex = Math.min(...group.rows);
-                              const newRows = Array.from(
-                                { length: endIndex - startIndex + 1 },
-                                (_, i) => startIndex + i
-                              );
-                              const newGroups = [...formik.values.groups];
-                              newGroups[groupIndex].rows = newRows;
-                              formik.setFieldValue("groups", newGroups);
-                            }}
-                          >
-                            {route.rows.map((_, index) => (
-                              <MenuItem
-                                key={index}
-                                value={index}
-                                disabled={formik.values.groups.some(
-                                  (g, i) =>
-                                    i !== groupIndex && g.rows.includes(index)
-                                )}
-                              >
-                                Підрозділ {index + 1}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-                      </Stack>
-                    </Stack>
-                  </Box>
+                  <GroupEditor
+                    key={groupIndex}
+                    group={group}
+                    groupIndex={groupIndex}
+                    rows={route.rows}
+                    groups={formik.values.groups}
+                    onGroupChange={(newGroups) => {
+                      const newFormikValues = {
+                        ...formik.values,
+                        groups: newGroups,
+                      };
+                      formik.setValues(newFormikValues);
+                    }}
+                  />
                 ))}
                 <Button
                   variant="outlined"
@@ -538,16 +619,6 @@ const AppContainer = () => {
     </LocalizationProvider>
   );
 };
-
-interface Group {
-  name: string;
-  rows: number[];
-}
-
-interface Coordinates {
-  x: number;
-  y: number;
-}
 
 const CanvasWithExport = ({
   routes,
