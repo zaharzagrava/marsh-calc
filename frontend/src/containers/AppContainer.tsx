@@ -17,9 +17,18 @@ import {
   Paper,
   TextField,
   Button,
+  Card,
+  Box,
+  Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  IconButton,
 } from "@mui/material";
 import { AdapterLuxon } from "@mui/x-date-pickers/AdapterLuxon";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 import { AppState } from "../store/reducer";
 import { Stack } from "@mui/material";
@@ -153,86 +162,75 @@ const calculateExtraColumns = (row: RowData, routeData: RouteData): RowData => {
 interface Route {
   rows: RowData[];
   routeData: RouteData;
-  groups: Group[];
 }
 
 const routeDefauls: Route = {
-    rows: [
-      {
-        unitName: "",
-        numOfVehicles: 10,
-        numOfConvoys: 1,
-        distBetweenVehicles: 4000,
-        distToNextConvoy: 100,
-        distBetweenConvoyHeadAndInitialPointOfDeparture: 7,
-        speedOfExtraction: 15,
-        speed: 25,
+  rows: [
+    {
+      unitName: "",
+      numOfVehicles: 10,
+      numOfConvoys: 1,
+      distBetweenVehicles: 4000,
+      distToNextConvoy: 100,
+      distBetweenConvoyHeadAndInitialPointOfDeparture: 7,
+      speedOfExtraction: 15,
+      speed: 25,
 
-        depthOfConvoy: 0,
-        timeToPassPointOfDeparture_convoyStart: DateTime.now(),
-        timeToPassPointOfDeparture_convoyEnd: DateTime.now(),
-        timeOfStartOfMovement: DateTime.now(),
-        timeOfEndOfMovement: DateTime.now(),
-      },
-      {
-        unitName: "",
-        numOfVehicles: 10,
-        numOfConvoys: 1,
-        distBetweenVehicles: 4000,
-        distToNextConvoy: 100,
-        distBetweenConvoyHeadAndInitialPointOfDeparture: 7,
-        speedOfExtraction: 15,
-        speed: 25,
-
-        depthOfConvoy: 0,
-        timeToPassPointOfDeparture_convoyStart: DateTime.now(),
-        timeToPassPointOfDeparture_convoyEnd: DateTime.now(),
-        timeOfStartOfMovement: DateTime.now(),
-        timeOfEndOfMovement: DateTime.now(),
-      },
-      {
-        unitName: "",
-        numOfVehicles: 10,
-        numOfConvoys: 1,
-        distBetweenVehicles: 4000,
-        distToNextConvoy: 100,
-        distBetweenConvoyHeadAndInitialPointOfDeparture: 7,
-        speedOfExtraction: 15,
-        speed: 25,
-
-        depthOfConvoy: 0,
-        timeToPassPointOfDeparture_convoyStart: DateTime.now(),
-        timeToPassPointOfDeparture_convoyEnd: DateTime.now(),
-        timeOfStartOfMovement: DateTime.now(),
-        timeOfEndOfMovement: DateTime.now(),
-      },
-    ],
-    routeData: {
-      directiveTimeOfEndOfMovement: DateTime.now().set({
-        day: 24,
-        month: 10,
-        year: 2024,
-        hour: 6,
-        minute: 0,
-        second: 0,
-        millisecond: 0,
-      }),
-      depthOfDestinationArea: 17,
-      totalTimeOfStops: 2,
-      lengthOfRoute: 250,
-      depthOfFullConvoy: 0,
+      depthOfConvoy: 0,
+      timeToPassPointOfDeparture_convoyStart: DateTime.now(),
+      timeToPassPointOfDeparture_convoyEnd: DateTime.now(),
+      timeOfStartOfMovement: DateTime.now(),
+      timeOfEndOfMovement: DateTime.now(),
     },
-    groups: [
-      {
-        name: "Похідна охорона",
-        rows: [0, 1],
-      },
-      {
-        name: "Підрозділи ТхЗ, ТлЗ та МедЗ",
-        rows: [2],
-      },
-    ],
-}
+    {
+      unitName: "",
+      numOfVehicles: 10,
+      numOfConvoys: 1,
+      distBetweenVehicles: 4000,
+      distToNextConvoy: 100,
+      distBetweenConvoyHeadAndInitialPointOfDeparture: 7,
+      speedOfExtraction: 15,
+      speed: 25,
+
+      depthOfConvoy: 0,
+      timeToPassPointOfDeparture_convoyStart: DateTime.now(),
+      timeToPassPointOfDeparture_convoyEnd: DateTime.now(),
+      timeOfStartOfMovement: DateTime.now(),
+      timeOfEndOfMovement: DateTime.now(),
+    },
+    {
+      unitName: "",
+      numOfVehicles: 10,
+      numOfConvoys: 1,
+      distBetweenVehicles: 4000,
+      distToNextConvoy: 100,
+      distBetweenConvoyHeadAndInitialPointOfDeparture: 7,
+      speedOfExtraction: 15,
+      speed: 25,
+
+      depthOfConvoy: 0,
+      timeToPassPointOfDeparture_convoyStart: DateTime.now(),
+      timeToPassPointOfDeparture_convoyEnd: DateTime.now(),
+      timeOfStartOfMovement: DateTime.now(),
+      timeOfEndOfMovement: DateTime.now(),
+    },
+  ],
+  routeData: {
+    directiveTimeOfEndOfMovement: DateTime.now().set({
+      day: 24,
+      month: 10,
+      year: 2024,
+      hour: 6,
+      minute: 0,
+      second: 0,
+      millisecond: 0,
+    }),
+    depthOfDestinationArea: 17,
+    totalTimeOfStops: 2,
+    lengthOfRoute: 250,
+    depthOfFullConvoy: 0,
+  },
+};
 
 const AppContainer = () => {
   const dispatch = useDispatch();
@@ -240,10 +238,19 @@ const AppContainer = () => {
 
   const formik = useFormik<{
     routes: Route[];
+    groups: Group[];
   }>({
     initialValues: {
-      routes: [
-        { ...routeDefauls},
+      routes: [{ ...routeDefauls }],
+      groups: [
+        {
+          name: "Похідна охорона",
+          rows: [0, 1],
+        },
+        {
+          name: "Підрозділи ТхЗ, ТлЗ та МедЗ",
+          rows: [2],
+        },
       ],
     },
     onSubmit: (values) => {
@@ -274,10 +281,10 @@ const AppContainer = () => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterLuxon}>
-      <Stack direction="column" component="main">
+      <Stack direction="column" component="main" spacing={2} margin={2}>
         {processedRoutes.map((route, routeIndex) => {
           return (
-            <>
+            <Card sx={{ p: 1 }}>
               <TableContainer component={Paper}>
                 <Table>
                   <TableHead>
@@ -345,6 +352,11 @@ const AppContainer = () => {
                 <DateTimePicker
                   label="Директивний час зосередження"
                   value={route.routeData.directiveTimeOfEndOfMovement}
+                  sx={{
+                    "& .MuiInputBase-input": {
+                      padding: "5px",
+                    },
+                  }}
                   onChange={(newValue) => {
                     formik.setFieldValue(
                       "directiveTimeOfEndOfMovement",
@@ -355,6 +367,11 @@ const AppContainer = () => {
                 <TextField
                   label="Загальний час зупинки (год.)"
                   value={route.routeData.totalTimeOfStops}
+                  sx={{
+                    "& .MuiInputBase-input": {
+                      padding: "5px",
+                    },
+                  }}
                   onChange={(e) => {
                     formik.setFieldValue(
                       "totalTimeOfStops",
@@ -365,6 +382,11 @@ const AppContainer = () => {
                 <TextField
                   label="Довжина маршруту (км.)"
                   value={route.routeData.lengthOfRoute}
+                  sx={{
+                    "& .MuiInputBase-input": {
+                      padding: "5px",
+                    },
+                  }}
                   onChange={(e) => {
                     formik.setFieldValue(
                       "lengthOfRoute",
@@ -375,6 +397,11 @@ const AppContainer = () => {
                 <TextField
                   label="Глибина району призначення (км.)"
                   value={route.routeData.depthOfDestinationArea}
+                  sx={{
+                    "& .MuiInputBase-input": {
+                      padding: "5px",
+                    },
+                  }}
                   onChange={(e) => {
                     formik.setFieldValue(
                       "depthOfDestinationArea",
@@ -383,21 +410,130 @@ const AppContainer = () => {
                   }}
                 />
               </Stack>
-            </>
+              <Box sx={{ mt: 2, mb: 2 }}>
+                <Typography variant="subtitle1" gutterBottom>
+                  Групи підрозділів
+                </Typography>
+                {formik.values.groups.map((group, groupIndex) => (
+                  <Box key={groupIndex} sx={{ mb: 2 }}>
+                    <Stack direction="row" spacing={2} alignItems="center">
+                      <TextField
+                        label={`Назва групи ${groupIndex + 1}`}
+                        value={group.name}
+                        onChange={(e) => {
+                          const newGroups = [...formik.values.groups];
+                          newGroups[groupIndex].name = e.target.value;
+                          formik.setFieldValue("groups", newGroups);
+                        }}
+                        sx={{
+                          width: 300,
+                          "& .MuiInputBase-input": {
+                            padding: "5px",
+                          },
+                        }}
+                      />
+                      <Stack direction="row" spacing={2}>
+                        <FormControl sx={{ width: 200 }}>
+                          <InputLabel>Початковий підрозділ</InputLabel>
+                          <Select
+                            value={Math.min(...group.rows) || 0}
+                            onChange={(e) => {
+                              const startIndex = e.target.value as number;
+                              const endIndex = Math.max(...group.rows);
+                              const newRows = Array.from(
+                                { length: endIndex - startIndex + 1 },
+                                (_, i) => startIndex + i
+                              );
+                              const newGroups = [...formik.values.groups];
+                              newGroups[groupIndex].rows = newRows;
+                              formik.setFieldValue("groups", newGroups);
+                            }}
+                          >
+                            {route.rows.map((_, index) => (
+                              <MenuItem
+                                key={index}
+                                value={index}
+                                disabled={formik.values.groups.some(
+                                  (g, i) =>
+                                    i !== groupIndex && g.rows.includes(index)
+                                )}
+                              >
+                                Підрозділ {index + 1}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                        <FormControl sx={{ width: 200 }}>
+                          <InputLabel>Кінцевий підрозділ</InputLabel>
+                          <Select
+                            value={Math.max(...group.rows) || 0}
+                            onChange={(e) => {
+                              const endIndex = e.target.value as number;
+                              const startIndex = Math.min(...group.rows);
+                              const newRows = Array.from(
+                                { length: endIndex - startIndex + 1 },
+                                (_, i) => startIndex + i
+                              );
+                              const newGroups = [...formik.values.groups];
+                              newGroups[groupIndex].rows = newRows;
+                              formik.setFieldValue("groups", newGroups);
+                            }}
+                          >
+                            {route.rows.map((_, index) => (
+                              <MenuItem
+                                key={index}
+                                value={index}
+                                disabled={formik.values.groups.some(
+                                  (g, i) =>
+                                    i !== groupIndex && g.rows.includes(index)
+                                )}
+                              >
+                                Підрозділ {index + 1}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      </Stack>
+                    </Stack>
+                  </Box>
+                ))}
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    formik.setFieldValue("groups", [
+                      ...formik.values.groups,
+                      { name: "", rows: [] },
+                    ]);
+                  }}
+                >
+                  Додати групу
+                </Button>
+              </Box>
+            </Card>
           );
         })}
         <Button
           variant="contained"
           onClick={() => {
-            formik.setFieldValue(
-              "routes",
-              [...formik.values.routes, { ...routeDefauls }]
-            );
+            if (formik.values.routes.length > 1) {
+              formik.setFieldValue("routes", formik.values.routes.slice(0, -1));
+            } else {
+              formik.setFieldValue("routes", [
+                ...formik.values.routes,
+                { ...routeDefauls },
+              ]);
+            }
           }}
+          sx={{ alignSelf: "flex-start" }}
         >
-          Додати другий маршрут
+          {formik.values.routes.length > 1
+            ? "Прибрати другий маршрут"
+            : "Додати другий маршрут"}
         </Button>
-        <CanvasWithExport routes={processedRoutes} />
+        <CanvasWithExport
+          routes={processedRoutes}
+          groups={formik.values.groups}
+        />
       </Stack>
     </LocalizationProvider>
   );
@@ -413,7 +549,13 @@ interface Coordinates {
   y: number;
 }
 
-const CanvasWithExport = ({ routes }: { routes: Route[] }) => {
+const CanvasWithExport = ({
+  routes,
+  groups,
+}: {
+  routes: Route[];
+  groups: Group[];
+}) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [scale, setScale] = useState<number>(1);
 
@@ -457,7 +599,14 @@ const CanvasWithExport = ({ routes }: { routes: Route[] }) => {
     img.src = `data:image/svg+xml;charset=utf-8,${encodedData}`;
   }, [routes]);
 
-  const { groups, rows } = routes[0];
+  // https://en.wikipedia.org/wiki/NATO_Joint_Military_Symbology#:~:text=Blue%20or%20black%20for%20friendly,biological%2C%20radiological%20or%20nuclear%20events
+  // https://en.wikipedia.org/wiki/File:Military_Symbol_-_Friendly_Unit_(Monochrome_Dark_1.5x1_Frame)-_Infantry_-_Mechanized_(NATO_APP-6).svg
+  // https://commons.wikimedia.org/wiki/Category:Unit_size_indicators_for_tactical_signs_and_map_symbols_of_NATO
+
+  // https://commons.wikimedia.org/wiki/Category:Military_map_symbols_for_units_and_formations/Infantry
+  // https://commons.wikimedia.org/wiki/Category:Military_map_symbols_for_units_and_formations/Friendly_unit_bichrome_1.6x1_frame
+  // https://commons.wikimedia.org/wiki/File:Military_Symbol_-_Friendly_Unit_(Bichrome_1.6x1_Frame)-_Infantry_-_Mechanized_(NATO_APP-6_Alternate).svg
+  // https://commons.wikimedia.org/wiki/Category:Military_map_symbols_for_units_and_formations
 
   return (
     <div>
@@ -471,132 +620,161 @@ const CanvasWithExport = ({ routes }: { routes: Route[] }) => {
         {(() => {
           const elements = [];
           let prevGroupWidth = 0;
+
           for (let groupIndex = 0; groupIndex < groups.length; groupIndex++) {
             const divisionWidth = 120;
             const divisionHeight = 75;
+            const rectBottomOffset = 30;
+            const rectBottomOffset2 = 60;
+
             const groupMarginX = 25;
             const groupMarginY = 100;
 
             const group = groups[groupIndex];
-            const groupDivisions = group.rows.map((row) => rows[row]);
+
             const groupOffset: Coordinates = {
               x:
                 50 + (prevGroupWidth === 0 ? 0 : prevGroupWidth + groupMarginX),
               y: 50,
             };
 
-            const groupWidth =
-              groupDivisions.length * divisionWidth +
-              Math.max(groupDivisions.length + 1, 2) * groupMarginX;
+            const groupWidths = [];
+            const allRoutesDivisions = [];
+            for (let index = 0; index < routes.length; index++) {
+              const groupDivisions = group.rows.map(
+                (row) => routes[index].rows[row]
+              );
+              allRoutesDivisions.push(groupDivisions);
+
+              const groupWidth =
+                groupDivisions.length * divisionWidth +
+                Math.max(groupDivisions.length + 1, 2) * groupMarginX;
+              groupWidths.push(groupWidth);
+            }
+
+            const groupWidth = Math.max(...groupWidths);
+            const groupHeight =
+              divisionHeight +
+              rectBottomOffset2 +
+              groupMarginY * 2 +
+              (routes.length > 1
+                ? divisionHeight + rectBottomOffset2 + groupMarginY
+                : 0);
 
             const rects = [];
-            const offset = {
-              x: groupOffset.x,
-              y: groupOffset.y + groupMarginY,
-            };
-            for (
-              let rowIndex = 0;
-              rowIndex < groupDivisions.length;
-              rowIndex++
-            ) {
-              const divisionX =
-                offset.x + groupMarginX + rowIndex * divisionWidth;
-              const divisionY = offset.y;
+            for (let index = 0; index < allRoutesDivisions.length; index++) {
+              const groupDivisions = allRoutesDivisions[index];
+              const groupWidth = groupWidths[index];
 
-              const rectBottomOffset = 30;
-              const rectBottomOffset2 = 60;
-              rects.push(
-                <g key={rowIndex}>
-                  <rect
-                    key={rowIndex}
-                    x={divisionX}
-                    y={divisionY}
-                    width={divisionWidth}
-                    height={divisionHeight}
-                    fill="none"
-                    stroke="blue"
-                    strokeWidth="3"
-                  />
-                  {/* Blue vertical line */}
-                  <line
-                    x1={divisionX + divisionWidth / 2}
-                    y1={divisionY + divisionHeight}
-                    x2={divisionX + divisionWidth / 2}
-                    y2={divisionY + divisionHeight + rectBottomOffset}
-                    stroke="blue"
-                    strokeWidth="3"
-                  />
-                  {/* Blue horizontal line */}
-                  <line
-                    x1={divisionX}
-                    y1={divisionY + divisionHeight + rectBottomOffset}
-                    x2={divisionX + divisionWidth - 10}
-                    y2={divisionY + divisionHeight + rectBottomOffset}
-                    stroke="blue"
-                    strokeWidth="3"
-                  />
-                  <polygon
-                    points={`${divisionX},${divisionY + divisionHeight + rectBottomOffset} ${divisionX + divisionWidth - 20},${divisionY + divisionHeight + rectBottomOffset} ${divisionX + divisionWidth - 20},${divisionY + divisionHeight + rectBottomOffset - 5} ${divisionX + divisionWidth},${divisionY + divisionHeight + rectBottomOffset} ${divisionX + divisionWidth - 20},${divisionY + divisionHeight + rectBottomOffset + 5} ${divisionX + divisionWidth - 20},${divisionY + divisionHeight + rectBottomOffset}`}
-                    fill="blue"
-                  />
-                  <text
-                    x={divisionX + divisionWidth / 2}
-                    y={divisionY + divisionHeight + rectBottomOffset + 20}
-                    fill="black"
-                    fontSize="18"
-                    textAnchor="middle"
-                  >
-                    {groupDivisions[rowIndex].numOfVehicles}
-                  </text>
-                  {/* Black vertical line */}
-                  <line
-                    x1={divisionX}
-                    y1={divisionY + divisionHeight + rectBottomOffset}
-                    x2={divisionX}
-                    y2={divisionY + divisionHeight + rectBottomOffset2 + 15}
-                    stroke="black"
-                    strokeWidth="1"
-                  />
-                  <line
-                    x1={divisionX + divisionWidth}
-                    y1={divisionY + divisionHeight + rectBottomOffset}
-                    x2={divisionX + divisionWidth}
-                    y2={divisionY + divisionHeight + rectBottomOffset2 + 15}
-                    stroke="black"
-                    strokeWidth="1"
-                  />
-                  {/* Two black arrows */}
-                  <polygon
-                    points={`${divisionX},${divisionY + divisionHeight + rectBottomOffset2} ${divisionX + divisionWidth - 20},${divisionY + divisionHeight + rectBottomOffset2} ${divisionX + divisionWidth - 20},${divisionY + divisionHeight + rectBottomOffset2 - 5} ${divisionX + divisionWidth},${divisionY + divisionHeight + rectBottomOffset2} ${divisionX + divisionWidth - 20},${divisionY + divisionHeight + rectBottomOffset2 + 5} ${divisionX + divisionWidth - 20},${divisionY + divisionHeight + rectBottomOffset2}`}
-                    fill="black"
-                  />
-                  <polygon
-                    points={`${divisionX},${divisionY + divisionHeight + rectBottomOffset2} ${divisionX + 20},${divisionY + divisionHeight + rectBottomOffset2} ${divisionX + 20},${divisionY + divisionHeight + rectBottomOffset2 - 5} ${divisionX},${divisionY + divisionHeight + rectBottomOffset2} ${divisionX + 20},${divisionY + divisionHeight + rectBottomOffset2 + 5} ${divisionX + 20},${divisionY + divisionHeight + rectBottomOffset2}`}
-                    fill="black"
-                  />
-                  {/* Black horizontal line */}
-                  <line
-                    x1={divisionX}
-                    y1={divisionY + divisionHeight + rectBottomOffset2}
-                    x2={divisionX + divisionWidth - 10}
-                    y2={divisionY + divisionHeight + rectBottomOffset2}
-                    stroke="black"
-                    strokeWidth="2"
-                  />
-                  <text
-                    x={divisionX + divisionWidth / 2}
-                    y={divisionY + divisionHeight + rectBottomOffset2 + 20}
-                    fill="black"
-                    fontSize="18"
-                    textAnchor="middle"
-                  >
-                    {groupDivisions[rowIndex].depthOfConvoy}
-                  </text>
-                </g>
-              );
+              const offset = {
+                x: groupOffset.x,
+                y:
+                  groupOffset.y +
+                  groupMarginY +
+                  index * (divisionHeight + rectBottomOffset2 + groupMarginY),
+              };
 
-              offset.x = divisionX;
-              offset.y = divisionY;
+              for (
+                let rowIndex = 0;
+                rowIndex < groupDivisions.length;
+                rowIndex++
+              ) {
+                const divisionX =
+                  offset.x + groupMarginX + rowIndex * divisionWidth;
+                const divisionY = offset.y;
+                rects.push(
+                  <g key={rowIndex}>
+                    <rect
+                      key={rowIndex}
+                      x={divisionX}
+                      y={divisionY}
+                      width={divisionWidth}
+                      height={divisionHeight}
+                      fill="none"
+                      stroke="blue"
+                      strokeWidth="3"
+                    />
+                    {/* Blue vertical line */}
+                    <line
+                      x1={divisionX + divisionWidth / 2}
+                      y1={divisionY + divisionHeight}
+                      x2={divisionX + divisionWidth / 2}
+                      y2={divisionY + divisionHeight + rectBottomOffset}
+                      stroke="blue"
+                      strokeWidth="3"
+                    />
+                    {/* Blue horizontal line */}
+                    <line
+                      x1={divisionX}
+                      y1={divisionY + divisionHeight + rectBottomOffset}
+                      x2={divisionX + divisionWidth - 10}
+                      y2={divisionY + divisionHeight + rectBottomOffset}
+                      stroke="blue"
+                      strokeWidth="3"
+                    />
+                    <polygon
+                      points={`${divisionX},${divisionY + divisionHeight + rectBottomOffset} ${divisionX + divisionWidth - 20},${divisionY + divisionHeight + rectBottomOffset} ${divisionX + divisionWidth - 20},${divisionY + divisionHeight + rectBottomOffset - 5} ${divisionX + divisionWidth},${divisionY + divisionHeight + rectBottomOffset} ${divisionX + divisionWidth - 20},${divisionY + divisionHeight + rectBottomOffset + 5} ${divisionX + divisionWidth - 20},${divisionY + divisionHeight + rectBottomOffset}`}
+                      fill="blue"
+                    />
+                    <text
+                      x={divisionX + divisionWidth / 2}
+                      y={divisionY + divisionHeight + rectBottomOffset + 20}
+                      fill="black"
+                      fontSize="18"
+                      textAnchor="middle"
+                    >
+                      {groupDivisions[rowIndex].numOfVehicles}
+                    </text>
+                    {/* Black vertical line */}
+                    <line
+                      x1={divisionX}
+                      y1={divisionY + divisionHeight + rectBottomOffset}
+                      x2={divisionX}
+                      y2={divisionY + divisionHeight + rectBottomOffset2 + 15}
+                      stroke="black"
+                      strokeWidth="1"
+                    />
+                    <line
+                      x1={divisionX + divisionWidth}
+                      y1={divisionY + divisionHeight + rectBottomOffset}
+                      x2={divisionX + divisionWidth}
+                      y2={divisionY + divisionHeight + rectBottomOffset2 + 15}
+                      stroke="black"
+                      strokeWidth="1"
+                    />
+                    {/* Two black arrows */}
+                    <polygon
+                      points={`${divisionX},${divisionY + divisionHeight + rectBottomOffset2} ${divisionX + divisionWidth - 20},${divisionY + divisionHeight + rectBottomOffset2} ${divisionX + divisionWidth - 20},${divisionY + divisionHeight + rectBottomOffset2 - 5} ${divisionX + divisionWidth},${divisionY + divisionHeight + rectBottomOffset2} ${divisionX + divisionWidth - 20},${divisionY + divisionHeight + rectBottomOffset2 + 5} ${divisionX + divisionWidth - 20},${divisionY + divisionHeight + rectBottomOffset2}`}
+                      fill="black"
+                    />
+                    <polygon
+                      points={`${divisionX},${divisionY + divisionHeight + rectBottomOffset2} ${divisionX + 20},${divisionY + divisionHeight + rectBottomOffset2} ${divisionX + 20},${divisionY + divisionHeight + rectBottomOffset2 - 5} ${divisionX},${divisionY + divisionHeight + rectBottomOffset2} ${divisionX + 20},${divisionY + divisionHeight + rectBottomOffset2 + 5} ${divisionX + 20},${divisionY + divisionHeight + rectBottomOffset2}`}
+                      fill="black"
+                    />
+                    {/* Black horizontal line */}
+                    <line
+                      x1={divisionX}
+                      y1={divisionY + divisionHeight + rectBottomOffset2}
+                      x2={divisionX + divisionWidth - 10}
+                      y2={divisionY + divisionHeight + rectBottomOffset2}
+                      stroke="black"
+                      strokeWidth="2"
+                    />
+                    <text
+                      x={divisionX + divisionWidth / 2}
+                      y={divisionY + divisionHeight + rectBottomOffset2 + 20}
+                      fill="black"
+                      fontSize="18"
+                      textAnchor="middle"
+                    >
+                      {groupDivisions[rowIndex].depthOfConvoy}
+                    </text>
+                  </g>
+                );
+
+                offset.x = divisionX;
+                offset.y = divisionY;
+              }
             }
 
             elements.push(
@@ -616,7 +794,7 @@ const CanvasWithExport = ({ routes }: { routes: Route[] }) => {
                   x={groupOffset.x}
                   y={groupOffset.y}
                   width={groupWidth}
-                  height={divisionHeight + groupMarginY * 2}
+                  height={groupHeight}
                   fill="none"
                   stroke="black"
                   strokeWidth="3"
