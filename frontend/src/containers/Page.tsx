@@ -9,7 +9,6 @@ const PageStyled = styled('div')({
   minHeight: '100vh',
   maxWidth: '100vw',
   display: 'grid',
-  backgroundColor: 'rgb(5, 7, 10)',
 });
 
 const Page = ({ children }: Props) => <PageStyled>{children}</PageStyled>;
