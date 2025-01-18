@@ -437,21 +437,7 @@ interface RouteProps {
 
 const RouteComponent = ({ route, routeIndex, setFieldValue }: RouteProps) => {
   const handleAddRow = useCallback(() => {
-    const newRow = {
-      unitName: "",
-      numOfVehicles: 10,
-      numOfConvoys: 1,
-      distBetweenVehicles: 4000,
-      distToNextConvoy: 100,
-      distBetweenConvoyHeadAndInitialPointOfDeparture: 7,
-      speedOfExtraction: 15,
-      speed: 25,
-      depthOfConvoy: 0,
-      timeToPassPointOfDeparture_convoyStart: DateTime.now(),
-      timeToPassPointOfDeparture_convoyEnd: DateTime.now(),
-      timeOfStartOfMovement: DateTime.now(),
-      timeOfEndOfMovement: DateTime.now(),
-    };
+    const newRow = { ...defaultElem };
 
     const newRows = [...route.rows, newRow];
     setFieldValue(`routes[${routeIndex}].rows`, newRows);
