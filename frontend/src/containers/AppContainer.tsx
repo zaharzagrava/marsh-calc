@@ -26,6 +26,8 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { Stack, Grid } from "@mui/material";
 import { DateTime } from "luxon";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { divisionTypes, Group, GroupInfo, Route, RouteData, RowData } from "../types/types";
+import CanvasWithExport from "./CanvasWithExport";
 
 // https://en.wikipedia.org/wiki/NATO_Joint_Military_Symbology#:~:text=Blue%20or%20black%20for%20friendly,biological%2C%20radiological%20or%20nuclear%20events
 // https://en.wikipedia.org/wiki/File:Military_Symbol_-_Friendly_Unit_(Monochrome_Dark_1.5x1_Frame)-_Infantry_-_Mechanized_(NATO_APP-6).svg
@@ -35,25 +37,6 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 // https://commons.wikimedia.org/wiki/Category:Military_map_symbols_for_units_and_formations/Friendly_unit_bichrome_1.6x1_frame
 // https://commons.wikimedia.org/wiki/File:Military_Symbol_-_Friendly_Unit_(Bichrome_1.6x1_Frame)-_Infantry_-_Mechanized_(NATO_APP-6_Alternate).svg
 // https://commons.wikimedia.org/wiki/Category:Military_map_symbols_for_units_and_formations
-
-interface RowData {
-  type: DivisionType;
-  unitName: string;
-  numOfVehicles: number;
-  numOfConvoys: number;
-  distBetweenVehicles: number;
-  distToNextConvoy: number;
-  distBetweenConvoyHeadAndInitialPointOfDeparture: number;
-  speedOfExtraction: number;
-  speed: number;
-
-  depthOfConvoy: number;
-  timeToPassPointOfDeparture_convoyStart: DateTime;
-  timeToPassPointOfDeparture_convoyEnd: DateTime;
-
-  timeOfStartOfMovement: DateTime;
-  timeOfEndOfMovement: DateTime;
-}
 
 export const columnNames = {
   type: "Тип підрозділу",
@@ -77,14 +60,6 @@ export const columnNames = {
     "Директивний час зосередження підрозділів у районі призначення Tзос. (год. хв.)",
 };
 
-// Calculate extra columns for each row
-interface RouteData {
-  directiveTimeOfEndOfMovement: DateTime;
-  depthOfDestinationArea: number;
-  totalTimeOfStops: number;
-  lengthOfRoute: number;
-  depthOfFullConvoy: number;
-}
 
 const calculateDepthOfConvoy = (
   numOfVehicles: number,
@@ -137,26 +112,6 @@ const calculateExtraColumns = (row: RowData, routeData: RouteData): RowData => {
     timeOfEndOfMovement,
   };
 };
-
-interface Route {
-  rows: RowData[];
-  routeData: RouteData;
-  groupsInfo: GroupInfo[];
-}
-
-interface GroupInfo {
-  name: string;
-  rows: number[];
-}
-
-interface Group {
-  name: string;
-}
-
-interface Coordinates {
-  x: number;
-  y: number;
-}
 
 interface GroupsEditorProps {
   groups: Group[];
@@ -305,11 +260,6 @@ enum DivisionType {
   ArmourAirborne = "armour-airborne",
 }
 
-const divisionTypes = [
-  { type: DivisionType.Armour, uaName: "Бронетехніка", svgPath: "" },
-  { type: DivisionType.Armour1, uaName: "Бронетехніка", svgPath: "" },
-  { type: DivisionType.ArmourAirborne, uaName: "Бронетехніка", svgPath: "" },
-];
 
 const RouteRow = ({
   row,
@@ -318,12 +268,21 @@ const RouteRow = ({
   onRowChange,
   onDeleteRow,
 }: RouteRowProps) => {
+  console.log('@row');
+  console.log(row);
+
   const handleValueChange = useCallback(
     (key: keyof RowData, value: string) => {
       const newRows = [...route.rows];
       newRows[rowIndex] = {
         ...newRows[rowIndex],
-        [key]: key !== "unitName" ? Number(value) : value,
+        [key]: (() => {
+          if (key === "type" || key === "unitName") {
+            return value;
+          }
+
+          return Number(value);
+        })(),
       };
 
       onRowChange(newRows);
@@ -369,11 +328,11 @@ const RouteRow = ({
             if (key === "type") {
               return (
                 <Autocomplete
-                  value={
-                    divisionTypes.find((type) => type.type === row.type) || null
-                  }
+                  value={divisionTypes.find((type) => type.type === row.type)}
                   onChange={(_, newValue) => {
-                    handleValueChange("type", newValue?.type || "");
+                    if (newValue) {
+                      handleValueChange("type", newValue.type);
+                    }
                   }}
                   sx={{
                     "& .MuiOutlinedInput-root.MuiInputBase-sizeSmall": {
@@ -383,6 +342,7 @@ const RouteRow = ({
                   }}
                   options={divisionTypes}
                   getOptionLabel={(option) => option.uaName}
+                  disableClearable
                   renderInput={(params) => (
                     <TextField
                       {...params}
@@ -451,7 +411,7 @@ const RouteRow = ({
   );
 };
 
-const defaultElem = {
+const defaultElem: RowData = {
   type: DivisionType.Armour,
   unitName: "",
   numOfVehicles: 10,
@@ -475,7 +435,7 @@ interface RouteProps {
   setFieldValue: (field: string, value: any) => void;
 }
 
-const Route = ({ route, routeIndex, setFieldValue }: RouteProps) => {
+const RouteComponent = ({ route, routeIndex, setFieldValue }: RouteProps) => {
   const handleAddRow = useCallback(() => {
     const newRow = {
       unitName: "",
@@ -712,7 +672,7 @@ const AppContainer = () => {
         </Grid>
         <Grid item>
           {processedRoutes.map((route, routeIndex) => (
-            <Route
+            <RouteComponent
               key={routeIndex}
               route={route}
               routeIndex={routeIndex}
@@ -745,7 +705,9 @@ const AppContainer = () => {
               : "Додати другий маршрут"}
           </Button>
         </Grid>
-        <CanvasWithExport routes={processedRoutes} />
+        <Grid item>
+          <CanvasWithExport routes={processedRoutes} />
+        </Grid>
       </Grid>
     </LocalizationProvider>
   );
@@ -829,263 +791,6 @@ const GroupsOrderEditor = ({
         </>
       )}
     </Stack>
-  );
-};
-
-const CanvasWithExport = ({ routes }: { routes: Route[] }) => {
-  const svgRef = useRef<SVGSVGElement | null>(null);
-
-  const exportToPNG = useCallback(() => {
-    const svgElement = svgRef.current;
-
-    if (!svgElement) return;
-
-    const svgData = new XMLSerializer().serializeToString(svgElement);
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-
-    if (!ctx) return;
-
-    const img = new Image();
-
-    // Set canvas size to match the SVG size
-    const { width, height } = svgElement.getBoundingClientRect();
-    canvas.width = width;
-    canvas.height = height;
-
-    img.onload = () => {
-      ctx.drawImage(img, 0, 0);
-      const pngData = canvas.toDataURL("image/png");
-
-      // Create a download link
-      const link = document.createElement("a");
-      link.download = "canvas-export.png";
-      link.href = pngData;
-      link.click();
-    };
-
-    // Convert SVG data to Base64 URI, handling non-Latin1 characters
-    const encodedData = encodeURIComponent(svgData);
-    img.src = `data:image/svg+xml;charset=utf-8,${encodedData}`;
-  }, []);
-
-  return (
-    <Grid item>
-      <svg
-        ref={svgRef}
-        xmlns="http://www.w3.org/2000/svg"
-        width="100%"
-        height="700px"
-        style={{ border: "1px solid black" }}
-      >
-        {(() => {
-          const elements = [];
-
-          const divisionWidth = 120;
-          const divisionHeight = 75;
-          const rectBottomOffset = 30;
-          const rectBottomOffset2 = 60;
-
-          const groupMarginX = 25;
-          const groupMarginY = 100;
-
-          let prevGroupWidth = 0;
-          const groupOffset: Coordinates = {
-            x: 50 + groupMarginX,
-            y: 50,
-          };
-
-          // groupsInfo in all routes are the same, and also synced with groups in formik
-          for (
-            let groupIndex = 0;
-            groupIndex < routes[0].groupsInfo.length;
-            groupIndex++
-          ) {
-            groupOffset.x += prevGroupWidth + groupMarginX;
-
-            const groupWidths = [];
-            const allRoutesDivisions = [];
-            for (let index = 0; index < routes.length; index++) {
-              const groupDivisions = routes[index].groupsInfo[
-                groupIndex
-              ].rows.map((row) => routes[index].rows[row]);
-              allRoutesDivisions.push(groupDivisions);
-
-              const groupWidth =
-                groupDivisions.length * divisionWidth +
-                Math.max(groupDivisions.length + 1, 2) * groupMarginX;
-              groupWidths.push(groupWidth);
-            }
-
-            const groupWidth = Math.max(...groupWidths);
-            const groupHeight =
-              divisionHeight +
-              rectBottomOffset2 +
-              groupMarginY * 2 +
-              (routes.length > 1
-                ? divisionHeight + rectBottomOffset2 + groupMarginY
-                : 0);
-
-            const rects = [];
-            for (let index = 0; index < allRoutesDivisions.length; index++) {
-              const groupDivisions = allRoutesDivisions[index];
-              const groupWidth = groupWidths[index];
-
-              const offset = {
-                x: groupOffset.x,
-                y:
-                  groupOffset.y +
-                  groupMarginY +
-                  index * (divisionHeight + rectBottomOffset2 + groupMarginY),
-              };
-
-              for (
-                let rowIndex = 0;
-                rowIndex < groupDivisions.length;
-                rowIndex++
-              ) {
-                const divisionX =
-                  offset.x + groupMarginX + (rowIndex > 0 ? divisionWidth : 0);
-                const divisionY = offset.y;
-
-                rects.push(
-                  <g
-                    key={`${routes[0].groupsInfo[groupIndex].name}-${index}-${rowIndex}`}
-                  >
-                    <rect
-                      key={`${routes[0].groupsInfo[groupIndex].name}-${index}-${rowIndex}`}
-                      x={divisionX}
-                      y={divisionY}
-                      width={divisionWidth}
-                      height={divisionHeight}
-                      fill="none"
-                      stroke="blue"
-                      strokeWidth="3"
-                    />
-                    {/* Blue vertical line */}
-                    <line
-                      x1={divisionX + divisionWidth / 2}
-                      y1={divisionY + divisionHeight}
-                      x2={divisionX + divisionWidth / 2}
-                      y2={divisionY + divisionHeight + rectBottomOffset}
-                      stroke="blue"
-                      strokeWidth="3"
-                    />
-                    {/* Blue horizontal line */}
-                    <line
-                      x1={divisionX}
-                      y1={divisionY + divisionHeight + rectBottomOffset}
-                      x2={divisionX + divisionWidth - 10}
-                      y2={divisionY + divisionHeight + rectBottomOffset}
-                      stroke="blue"
-                      strokeWidth="3"
-                    />
-                    <polygon
-                      points={`${divisionX},${divisionY + divisionHeight + rectBottomOffset} ${divisionX + divisionWidth - 20},${divisionY + divisionHeight + rectBottomOffset} ${divisionX + divisionWidth - 20},${divisionY + divisionHeight + rectBottomOffset - 5} ${divisionX + divisionWidth},${divisionY + divisionHeight + rectBottomOffset} ${divisionX + divisionWidth - 20},${divisionY + divisionHeight + rectBottomOffset + 5} ${divisionX + divisionWidth - 20},${divisionY + divisionHeight + rectBottomOffset}`}
-                      fill="blue"
-                    />
-                    <text
-                      x={divisionX + divisionWidth / 2}
-                      y={divisionY + divisionHeight + rectBottomOffset + 20}
-                      fill="black"
-                      fontSize="18"
-                      textAnchor="middle"
-                    >
-                      {groupDivisions[rowIndex].numOfVehicles}
-                    </text>
-                    {/* Black vertical line */}
-                    <line
-                      x1={divisionX}
-                      y1={divisionY + divisionHeight + rectBottomOffset}
-                      x2={divisionX}
-                      y2={divisionY + divisionHeight + rectBottomOffset2 + 15}
-                      stroke="black"
-                      strokeWidth="1"
-                    />
-                    <line
-                      x1={divisionX + divisionWidth}
-                      y1={divisionY + divisionHeight + rectBottomOffset}
-                      x2={divisionX + divisionWidth}
-                      y2={divisionY + divisionHeight + rectBottomOffset2 + 15}
-                      stroke="black"
-                      strokeWidth="1"
-                    />
-                    {/* Two black arrows */}
-                    <polygon
-                      points={`${divisionX},${divisionY + divisionHeight + rectBottomOffset2} ${divisionX + divisionWidth - 20},${divisionY + divisionHeight + rectBottomOffset2} ${divisionX + divisionWidth - 20},${divisionY + divisionHeight + rectBottomOffset2 - 5} ${divisionX + divisionWidth},${divisionY + divisionHeight + rectBottomOffset2} ${divisionX + divisionWidth - 20},${divisionY + divisionHeight + rectBottomOffset2 + 5} ${divisionX + divisionWidth - 20},${divisionY + divisionHeight + rectBottomOffset2}`}
-                      fill="black"
-                    />
-                    <polygon
-                      points={`${divisionX},${divisionY + divisionHeight + rectBottomOffset2} ${divisionX + 20},${divisionY + divisionHeight + rectBottomOffset2} ${divisionX + 20},${divisionY + divisionHeight + rectBottomOffset2 - 5} ${divisionX},${divisionY + divisionHeight + rectBottomOffset2} ${divisionX + 20},${divisionY + divisionHeight + rectBottomOffset2 + 5} ${divisionX + 20},${divisionY + divisionHeight + rectBottomOffset2}`}
-                      fill="black"
-                    />
-                    {/* Black horizontal line */}
-                    <line
-                      x1={divisionX}
-                      y1={divisionY + divisionHeight + rectBottomOffset2}
-                      x2={divisionX + divisionWidth - 10}
-                      y2={divisionY + divisionHeight + rectBottomOffset2}
-                      stroke="black"
-                      strokeWidth="2"
-                    />
-                    <text
-                      x={divisionX + divisionWidth / 2}
-                      y={divisionY + divisionHeight + rectBottomOffset2 + 20}
-                      fill="black"
-                      fontSize="18"
-                      textAnchor="middle"
-                    >
-                      {groupDivisions[rowIndex].depthOfConvoy}
-                    </text>
-                  </g>
-                );
-
-                offset.x = divisionX;
-                offset.y = divisionY;
-              }
-            }
-
-            elements.push(
-              <g key={groupIndex}>
-                {/* Group name text */}
-                <text
-                  x={groupOffset.x - 5}
-                  y={groupOffset.y - 15}
-                  fill="black"
-                  fontSize="18"
-                  textAnchor="start"
-                >
-                  {routes[0].groupsInfo[groupIndex].name}
-                </text>
-                {/* Black dashed rectangle */}
-                <rect
-                  x={groupOffset.x}
-                  y={groupOffset.y}
-                  width={groupWidth}
-                  height={groupHeight}
-                  fill="none"
-                  stroke="black"
-                  strokeWidth="3"
-                  strokeDasharray="18,7"
-                />
-                {rects}
-              </g>
-            );
-
-            prevGroupWidth = groupWidth;
-          }
-
-          return elements;
-        })()}
-      </svg>
-      <Button
-        variant="contained"
-        onClick={exportToPNG}
-        style={{ marginTop: "10px" }}
-      >
-        Export to PNG
-      </Button>
-    </Grid>
   );
 };
 
