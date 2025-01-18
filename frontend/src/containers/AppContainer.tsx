@@ -176,41 +176,75 @@ const GroupsEditor = ({
     onGroupsChange(newGroups, routes);
   }, [groups, routes, onGroupsChange]);
 
-  const handleDeleteGroup = useCallback((groupIndex: number) => {
-    const newGroups = groups.filter((_, i) => i !== groupIndex);
-
-    const newRoutes = routes.map((route) => ({
-      ...route,
-      rows: route.rows.filter(
-        (_, i) => !route.groupsInfo[groupIndex].rows.includes(i)
-      ),
-    }));
-
-    onGroupsChange(newGroups, newRoutes);
-  }, [groups, routes, onGroupsChange]);
-
   const handleAddGroup = useCallback(() => {
-    const lastRowIndex = routes[0]?.rows.length || 0;
     const newGroupName = `Група ${groups.length + 1}`;
 
     // Update groups
-    const newGroups = [
+    const newGroups: Group[] = [
       ...groups,
-      {
-        name: newGroupName,
-        rows: [lastRowIndex],
-      },
+      { name: newGroupName },
     ];
 
     // Update groupsInfo in routes
-    const newRoutes = routes.map((route) => ({
+    const newRoutes = routes.map((route) => {
+      const lastRowIndex = route.rows.length;
+
+      return {
       ...route,
       rows: [...route.rows, { ...route.rows[0] }],
       groupsInfo: [...route.groupsInfo, {
         name: newGroupName,
         rows: [lastRowIndex],
-      }],
-    }));
+      }]
+    };
+    });
+
+    onGroupsChange(newGroups, newRoutes);
+  }, [groups, routes, onGroupsChange]);
+
+  const handleDeleteGroup = useCallback((groupIndex: number) => {
+    console.log('@groupIndex');
+    console.log(groupIndex);
+
+    const newGroups = groups.filter((_, i) => i !== groupIndex);
+
+    const newRoutes = routes.map((route) => {
+      console.log('@route.groupsInfo[groupIndex].rows');
+      console.log(route.groupsInfo[groupIndex].rows);
+      const removedIndexes = route.groupsInfo[groupIndex].rows;
+
+      const newRoute = {
+        ...route,
+        rows: route.rows.filter(
+          (_, i) => !removedIndexes.includes(i)
+        ),
+      }
+
+      const newGroupsInfo = [];
+      for (let i = 0; i < route.groupsInfo.length; i++) {
+        if (i === groupIndex) continue;
+
+        newGroupsInfo.push({
+          name: route.groupsInfo[i].name,
+          rows: route.groupsInfo[i].rows.map(
+            (rowIndex) => {
+              if (rowIndex > removedIndexes.length) {
+                return rowIndex - removedIndexes.length;
+              }
+
+              return rowIndex;
+            }
+          )
+        });
+      }
+
+      newRoute.groupsInfo = newGroupsInfo;
+
+      console.log('@newRoute');
+      console.log(newRoute);
+
+      return newRoute;
+    });
 
     onGroupsChange(newGroups, newRoutes);
   }, [groups, routes, onGroupsChange]);
@@ -570,7 +604,7 @@ const AppContainer = () => {
                 <Box sx={{ mt: 2, mb: 2 }}>
                   <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
                     {route.groupsInfo.map((groupInfo, groupIndex) => (
-                      <GroupEditor
+                      <GroupsOrderEditor
                         key={groupIndex}
                         groupInfo={groupInfo}
                         groupIndex={groupIndex}
@@ -640,13 +674,62 @@ interface GroupEditorProps {
   onGroupChange: (newGroups: GroupInfo[]) => void;
 }
 
-const GroupEditor = ({
+const GroupsOrderEditor = ({
   groupInfo,
   groupIndex,
   rows,
   groupsInfo,
   onGroupChange,
 }: GroupEditorProps) => {
+
+  const onArrowBackClick = useCallback(() => {
+    const currentEnd = Math.max(...groupInfo.rows);
+    const newEnd = currentEnd - 1;
+
+    if (newEnd < 0 || groupInfo.rows.length === 1) {
+      return;
+    }
+
+    const newGroups = [...groupsInfo];
+    // Remove the new index from other groups
+    newGroups[groupIndex].rows = groupInfo.rows.filter(
+      (r) => r !== currentEnd
+    );
+
+    const nextGroup = newGroups[groupIndex + 1];
+
+    if (nextGroup) {
+      nextGroup.rows = [currentEnd, ...nextGroup.rows];
+    }
+
+    onGroupChange(newGroups);
+  }, [groupInfo, groupsInfo, onGroupChange, groupIndex]);
+
+  const onArrowForwardClick = useCallback(() => {
+    const currentEnd = Math.max(...groupInfo.rows); 
+    const newEnd = currentEnd + 1;
+
+    const nextGroup = groupsInfo[groupIndex + 1];
+
+    if (
+      newEnd > rows.length - 1 ||
+      (nextGroup && nextGroup.rows.length === 1)
+    ) {
+      return;
+    }
+
+    const newGroups = [...groupsInfo];
+    // Remove the new index from other groups
+    newGroups.forEach((g, i) => {
+      if (i !== groupIndex) {
+        g.rows = g.rows.filter((r) => r !== currentEnd + 1);
+      }
+    });
+    // Add new index to current group
+    newGroups[groupIndex].rows = [...groupInfo.rows, currentEnd + 1];
+    onGroupChange(newGroups);
+  }, [groupInfo, groupsInfo, onGroupChange, groupIndex, rows.length]);
+
   return (
     <Stack direction="row" alignItems="center" spacing={1}>
       <Typography>
@@ -656,56 +739,12 @@ const GroupEditor = ({
       {groupIndex !== groupsInfo.length - 1 && (
         <>
           <IconButton
-            onClick={() => {
-              const currentEnd = Math.max(...groupInfo.rows);
-              const newEnd = currentEnd - 1;
-
-              if (newEnd < 0 || groupInfo.rows.length === 1) {
-                return;
-              }
-
-              const newGroups = [...groupsInfo];
-              // Remove the new index from other groups
-              newGroups[groupIndex].rows = groupInfo.rows.filter(
-                (r) => r !== currentEnd
-              );
-
-              const nextGroup = newGroups[groupIndex + 1];
-
-              if (nextGroup) {
-                nextGroup.rows = [currentEnd, ...nextGroup.rows];
-              }
-
-              onGroupChange(newGroups);
-            }}
+            onClick={onArrowBackClick}
           >
             <ArrowBackIcon />
           </IconButton>
           <IconButton
-            onClick={() => {
-              const currentEnd = Math.max(...groupInfo.rows);
-              const newEnd = currentEnd + 1;
-
-              const nextGroup = groupsInfo[groupIndex + 1];
-
-              if (
-                newEnd > rows.length - 1 ||
-                (nextGroup && nextGroup.rows.length === 1)
-              ) {
-                return;
-              }
-
-              const newGroups = [...groupsInfo];
-              // Remove the new index from other groups
-              newGroups.forEach((g, i) => {
-                if (i !== groupIndex) {
-                  g.rows = g.rows.filter((r) => r !== currentEnd + 1);
-                }
-              });
-              // Add new index to current group
-              newGroups[groupIndex].rows = [...groupInfo.rows, currentEnd + 1];
-              onGroupChange(newGroups);
-            }}
+            onClick={onArrowForwardClick}
           >
             <ArrowForwardIcon />
           </IconButton>
