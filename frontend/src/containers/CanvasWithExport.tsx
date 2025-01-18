@@ -28,33 +28,58 @@ const CanvasWithExport = ({ routes }: { routes: Route[] }) => {
 
     if (!svgElement) return;
 
-    const svgData = new XMLSerializer().serializeToString(svgElement);
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
+    // Clone the SVG to avoid modifying the original
+    const svgClone = svgElement.cloneNode(true) as SVGSVGElement;
+    
+    // Convert all image elements' href to base64
+    const imageElements = svgClone.getElementsByTagName('image');
+    const loadImages = Array.from(imageElements).map((img) => {
+      return new Promise<void>((resolve) => {
+        const imgElement = img as SVGImageElement;
+        const xhr = new XMLHttpRequest();
+        xhr.onload = function() {
+          const reader = new FileReader();
+          reader.onloadend = function() {
+            imgElement.setAttribute('href', reader.result as string);
+            resolve();
+          };
+          reader.readAsDataURL(xhr.response);
+        };
+        xhr.open('GET', imgElement.href.baseVal);
+        xhr.responseType = 'blob';
+        xhr.send();
+      });
+    });
 
-    if (!ctx) return;
+    Promise.all(loadImages).then(() => {
+      const svgData = new XMLSerializer().serializeToString(svgClone);
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
 
-    const img = new Image();
+      if (!ctx) return;
 
-    // Set canvas size to match the SVG size
-    const { width, height } = svgElement.getBoundingClientRect();
-    canvas.width = width;
-    canvas.height = height;
+      const img = new Image();
 
-    img.onload = () => {
-      ctx.drawImage(img, 0, 0);
-      const pngData = canvas.toDataURL("image/png");
+      // Set canvas size to match the SVG size
+      const { width, height } = svgElement.getBoundingClientRect();
+      canvas.width = width;
+      canvas.height = height;
 
-      // Create a download link
-      const link = document.createElement("a");
-      link.download = "canvas-export.png";
-      link.href = pngData;
-      link.click();
-    };
+      img.onload = () => {
+        ctx.drawImage(img, 0, 0);
+        const pngData = canvas.toDataURL("image/png");
 
-    // Convert SVG data to Base64 URI, handling non-Latin1 characters
-    const encodedData = encodeURIComponent(svgData);
-    img.src = `data:image/svg+xml;charset=utf-8,${encodedData}`;
+        // Create a download link
+        const link = document.createElement("a");
+        link.download = "canvas-export.png";
+        link.href = pngData;
+        link.click();
+      };
+
+      // Convert SVG data to Base64 URI, handling non-Latin1 characters
+      const encodedData = encodeURIComponent(svgData);
+      img.src = `data:image/svg+xml;charset=utf-8,${encodedData}`;
+    });
   }, []);
 
   return (
