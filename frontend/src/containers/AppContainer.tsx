@@ -726,7 +726,7 @@ const GroupsOrderEditor = ({
       return;
     }
 
-    const newGroups = [...groupsInfo];
+    const newGroups = [...groupsInfo.map((g) => ({ ...g }))];
     // Remove the new index from other groups
     newGroups[groupIndex].rows = groupInfo.rows.filter(
       (r) => r !== currentEnd
@@ -754,7 +754,7 @@ const GroupsOrderEditor = ({
       return;
     }
 
-    const newGroups = [...groupsInfo];
+    const newGroups = [...groupsInfo.map((g) => ({ ...g }))];
     // Remove the new index from other groups
     newGroups.forEach((g, i) => {
       if (i !== groupIndex) {
