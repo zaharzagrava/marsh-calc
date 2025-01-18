@@ -173,7 +173,17 @@ const GroupsEditor = ({
     const newGroups = groups.map((group, idx) => 
       idx === groupIndex ? { ...group, name: newName } : group
     );
-    onGroupsChange(newGroups, routes);
+
+    const newRoutes = routes.map((route) => {
+      return {
+        ...route,
+        groupsInfo: route.groupsInfo.map((group, idx) => 
+          idx === groupIndex ? { ...group, name: newName } : group
+        ),
+      };
+    });
+
+    onGroupsChange(newGroups, newRoutes);
   }, [groups, routes, onGroupsChange]);
 
   const handleAddGroup = useCallback(() => {
@@ -203,14 +213,9 @@ const GroupsEditor = ({
   }, [groups, routes, onGroupsChange]);
 
   const handleDeleteGroup = useCallback((groupIndex: number) => {
-    console.log('@groupIndex');
-    console.log(groupIndex);
-
     const newGroups = groups.filter((_, i) => i !== groupIndex);
 
     const newRoutes = routes.map((route) => {
-      console.log('@route.groupsInfo[groupIndex].rows');
-      console.log(route.groupsInfo[groupIndex].rows);
       const removedIndexes = route.groupsInfo[groupIndex].rows;
 
       const newRoute = {
@@ -221,6 +226,7 @@ const GroupsEditor = ({
       }
 
       const newGroupsInfo = [];
+      const lastRemovedIndex = removedIndexes[removedIndexes.length - 1];
       for (let i = 0; i < route.groupsInfo.length; i++) {
         if (i === groupIndex) continue;
 
@@ -228,7 +234,7 @@ const GroupsEditor = ({
           name: route.groupsInfo[i].name,
           rows: route.groupsInfo[i].rows.map(
             (rowIndex) => {
-              if (rowIndex > removedIndexes.length) {
+              if (rowIndex > lastRemovedIndex) {
                 return rowIndex - removedIndexes.length;
               }
 
@@ -239,9 +245,6 @@ const GroupsEditor = ({
       }
 
       newRoute.groupsInfo = newGroupsInfo;
-
-      console.log('@newRoute');
-      console.log(newRoute);
 
       return newRoute;
     });
@@ -289,6 +292,101 @@ const GroupsEditor = ({
 
 GroupsEditor.displayName = 'GroupsEditor';
 
+interface RouteRowProps {
+  row: RowData;
+  rowIndex: number;
+  route: Route;
+  routeIndex: number;
+  onRowChange: (newRows: RowData[]) => void;
+  onDeleteRow: (rowIndex: number) => void;
+}
+
+const RouteRow = ({ 
+  row, 
+  rowIndex, 
+  route, 
+  onRowChange,
+  onDeleteRow 
+}: RouteRowProps) => {
+  const handleValueChange = useCallback((key: keyof RowData, value: string) => {
+    const newRows = [...route.rows];
+    newRows[rowIndex] = {
+      ...newRows[rowIndex],
+      [key]: key !== "unitName" ? Number(value) : value,
+    };
+
+    onRowChange(newRows);
+  }, [rowIndex, route.rows, onRowChange]);
+
+  const isDeleteDisabled = useCallback(() => {
+    const group = route.groupsInfo.find((group) =>
+      group.rows.includes(rowIndex)
+    );
+    return (group?.rows.length ?? 0) === 1;
+  }, [route.groupsInfo, rowIndex]);
+
+  return (
+    <TableRow key={rowIndex}>
+      {Object.keys(row).map((key, colIndex) => (
+        <TableCell
+          key={`${rowIndex}-${colIndex}`}
+          sx={{ margin: 0, padding: 0 }}
+        >
+          <TextField
+            fullWidth
+            value={(() => {
+              if (
+                [
+                  "timeToPassPointOfDeparture_convoyStart",
+                  "timeToPassPointOfDeparture_convoyEnd",
+                  "timeOfStartOfMovement",
+                  "timeOfEndOfMovement",
+                ].includes(key)
+              ) {
+                return (row[key as keyof RowData] as DateTime).toFormat(
+                  "HH год. mm хв. dd.MM.yyyy"
+                );
+              }
+              return row[key as keyof RowData];
+            })()}
+            sx={{
+              "& .MuiInputBase-input": {
+                padding: "3px",
+              },
+            }}
+            onChange={(e) => handleValueChange(key as keyof RowData, e.target.value)}
+          />
+        </TableCell>
+      ))}
+      <TableCell sx={{ margin: 0, padding: 0 }}>
+        <IconButton
+          disabled={isDeleteDisabled()}
+          onClick={() => onDeleteRow(rowIndex)}
+        >
+          <DeleteIcon />
+        </IconButton>
+      </TableCell>
+    </TableRow>
+  );
+};
+
+const defaultElem = {
+  unitName: "",
+  numOfVehicles: 10,
+  numOfConvoys: 1,
+  distBetweenVehicles: 4000,
+  distToNextConvoy: 100,
+  distBetweenConvoyHeadAndInitialPointOfDeparture: 7,
+  speedOfExtraction: 15,
+  speed: 25,
+
+  depthOfConvoy: 0,
+  timeToPassPointOfDeparture_convoyStart: DateTime.now(),
+  timeToPassPointOfDeparture_convoyEnd: DateTime.now(),
+  timeOfStartOfMovement: DateTime.now(),
+  timeOfEndOfMovement: DateTime.now(),
+};
+
 const AppContainer = () => {
   const defaultGroups = useMemo(() => {
     return [
@@ -297,64 +395,43 @@ const AppContainer = () => {
     ];
   }, []);
 
-  const routeDefauls: Route = useMemo(() => {
-    const defaultElem = {
-      unitName: "",
-      numOfVehicles: 10,
-      numOfConvoys: 1,
-      distBetweenVehicles: 4000,
-      distToNextConvoy: 100,
-      distBetweenConvoyHeadAndInitialPointOfDeparture: 7,
-      speedOfExtraction: 15,
-      speed: 25,
-
-      depthOfConvoy: 0,
-      timeToPassPointOfDeparture_convoyStart: DateTime.now(),
-      timeToPassPointOfDeparture_convoyEnd: DateTime.now(),
-      timeOfStartOfMovement: DateTime.now(),
-      timeOfEndOfMovement: DateTime.now(),
-    };
-
-    return {
-      rows: [
-        { ...defaultElem },
-        { ...defaultElem },
-        { ...defaultElem },
-      ],
-      routeData: {
-        directiveTimeOfEndOfMovement: DateTime.now().set({
-          day: 24,
-          month: 10,
-          year: 2024,
-          hour: 6,
-          minute: 0,
-          second: 0,
-          millisecond: 0,
-        }),
-        depthOfDestinationArea: 17,
-        totalTimeOfStops: 2,
-        lengthOfRoute: 250,
-        depthOfFullConvoy: 0,
-      },
-      groupsInfo: [
-        {
-          name: defaultGroups[0].name,
-          rows: [0, 1],
-        },
-        {
-          name: defaultGroups[1].name,
-          rows: [2],
-        },
-      ],
-    };
-  }, [defaultGroups]);
-
   const formik = useFormik<{
     routes: Route[];
     groups: Group[];
   }>({
     initialValues: {
-      routes: [{ ...routeDefauls }],
+      routes: [{ 
+        rows: [
+          { ...defaultElem },
+          { ...defaultElem },
+          { ...defaultElem },
+        ],
+        routeData: {
+          directiveTimeOfEndOfMovement: DateTime.now().set({
+            day: 24,
+            month: 10,
+            year: 2024,
+            hour: 6,
+            minute: 0,
+            second: 0,
+            millisecond: 0,
+          }),
+          depthOfDestinationArea: 17,
+          totalTimeOfStops: 2,
+          lengthOfRoute: 250,
+          depthOfFullConvoy: 0,
+        },
+        groupsInfo: [
+          {
+            name: defaultGroups[0].name,
+            rows: [0, 1],
+          },
+          {
+            name: defaultGroups[1].name,
+            rows: [2],
+          },
+        ],
+      }],
       groups: defaultGroups,
     },
     onSubmit: (values) => {
@@ -383,6 +460,9 @@ const AppContainer = () => {
     });
   }, [formik.values.routes]);
 
+  // console.log('@formik.values');
+  // console.log(JSON.stringify(formik.values, null, 2));
+
   return (
     <LocalizationProvider dateAdapter={AdapterLuxon}>
       <Grid container direction="column" spacing={2} sx={{ p: 3 }}>
@@ -391,11 +471,8 @@ const AppContainer = () => {
             groups={formik.values.groups}
             routes={formik.values.routes}
             onGroupsChange={(newGroups, newRoutes) => {
-              formik.setValues({
-                ...formik.values,
-                groups: newGroups,
-                routes: newRoutes
-              });
+              formik.setFieldValue('groups', newGroups);
+              formik.setFieldValue('routes', newRoutes);
             }}
           />
         </Grid>
@@ -415,86 +492,58 @@ const AppContainer = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {route.rows.map((row, rowIndex) => {
-                        return (
-                          <TableRow key={rowIndex}>
-                            {Object.keys(row).map((key, colIndex) => {
-                              return (
-                                <TableCell
-                                  key={`${rowIndex}-${colIndex}`}
-                                  sx={{ margin: 0, padding: 0 }}
-                                >
-                                  <TextField
-                                    fullWidth
-                                    value={(() => {
-                                      if (
-                                        [
-                                          "timeToPassPointOfDeparture_convoyStart",
-                                          "timeToPassPointOfDeparture_convoyEnd",
-                                          "timeOfStartOfMovement",
-                                          "timeOfEndOfMovement",
-                                        ].includes(key)
-                                      ) {
-                                        return (
-                                          row[key as keyof RowData] as DateTime
-                                        ).toFormat("HH год. mm хв. dd.MM.yyyy");
-                                      }
+                      {route.rows.map((row, rowIndex) => (
+                        <RouteRow
+                          key={rowIndex}
+                          row={row}
+                          rowIndex={rowIndex}
+                          route={route}
+                          routeIndex={routeIndex}
+                          onRowChange={(newRows) => {
+                            formik.setFieldValue(
+                              `routes[${routeIndex}].rows`,
+                              newRows
+                            );
+                          }}
+                          onDeleteRow={(rowIndex) => {
+                            const newRows = route.rows.filter(
+                              (_, i) => i !== rowIndex
+                            );
+                            formik.setFieldValue(
+                              `routes[${routeIndex}].rows`,
+                              newRows
+                            );
 
-                                      return row[key as keyof RowData];
-                                    })()}
-                                    sx={{
-                                      "& .MuiInputBase-input": {
-                                        padding: "3px",
-                                      },
-                                    }}
-                                    onChange={(e) => {
-                                      const newRows = [...route.rows];
-                                      newRows[rowIndex] = {
-                                        ...newRows[rowIndex],
-                                        [key]:
-                                          key !== "unitName"
-                                            ? Number(e.target.value)
-                                            : e.target.value,
-                                      };
-                                      formik.setFieldValue(
-                                        `routes[${routeIndex}].rows`,
-                                        newRows
-                                      );
-                                    }}
-                                  />
-                                </TableCell>
-                              );
-                            })}
-                            <TableCell sx={{ margin: 0, padding: 0 }}>
-                              <IconButton
-                                disabled={(() => {
-                                  const group = route.groupsInfo.find((group) =>
-                                    group.rows.includes(rowIndex)
-                                  );
-                      
-                                  return (group?.rows.length ?? 0) === 1;
-                                })()}
-                                onClick={() => {
-                                  const newRows = route.rows.filter(
-                                    (_, i) => i !== rowIndex
-                                  );
-                                  formik.setFieldValue(
-                                    `routes[${routeIndex}].rows`,
-                                    newRows
-                                  );
+                            // Update groups to remove this row index and shift other indices
+                            const newGroupsInfo: GroupInfo[] = [];
+                            let startDecrement = false;
+                            for (let i = 0; i < route.groupsInfo.length; i++) {
+                              const currentGroup = route.groupsInfo[i];
+                              const newGroupInfo: GroupInfo = {
+                                name: currentGroup.name,
+                                rows: []
+                              };
 
-                                  // Update groups to remove this row index and shift other indices
-                                  const groupsInfo = formik.values.routes[routeIndex].groupsInfo
-                                  const newGroupsInfo = groupsInfo[groupsInfo.length - 1].rows.pop()
-                                  formik.setFieldValue(`routes[${routeIndex}].groupsInfo`, newGroupsInfo);
-                                }}
-                              >
-                                <DeleteIcon />
-                              </IconButton>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
+                              for (let ri = 0; ri < currentGroup.rows.length; ri++) {
+                                if (currentGroup.rows[ri] === rowIndex) {
+                                  startDecrement = true;
+                                  continue;
+                                }
+
+                                if (startDecrement) {
+                                  newGroupInfo.rows.push(currentGroup.rows[ri] - 1);
+                                } else {
+                                  newGroupInfo.rows.push(currentGroup.rows[ri]);
+                                }
+                              }
+
+                              newGroupsInfo.push(newGroupInfo);
+                            }
+
+                            formik.setFieldValue(`routes[${routeIndex}].groupsInfo`, newGroupsInfo);
+                          }}
+                        />
+                      ))}
                     </TableBody>
                   </Table>
                 </TableContainer>
@@ -526,7 +575,6 @@ const AppContainer = () => {
                     );
 
                     // Add new row index to last group
-
                     formik.values.routes.forEach((route) => {
                       const newGroups = [...route.groupsInfo];
                       const lastGroup = newGroups[newGroups.length - 1];
@@ -611,26 +659,12 @@ const AppContainer = () => {
                         rows={route.rows}
                         groupsInfo={route.groupsInfo}
                         onGroupChange={(newGroups) => {
-                          const newFormikValues = {
-                            ...formik.values,
-                            groups: newGroups,
-                          };
-                          formik.setValues(newFormikValues);
+                          console.log(`routes[${routeIndex}].groupsInfo`);
+                          formik.setFieldValue(`routes[${routeIndex}].groupsInfo`, newGroups);
                         }}
                       />
                     ))}
                   </Stack>
-                  <Button
-                    variant="outlined"
-                    onClick={() => {
-                      formik.setFieldValue("groups", [
-                        ...formik.values.groups,
-                        { name: "", rows: [] },
-                      ]);
-                    }}
-                  >
-                    Додати групу
-                  </Button>
                 </Box>
               </Card>
             );
@@ -646,9 +680,11 @@ const AppContainer = () => {
                   formik.values.routes.slice(0, -1)
                 );
               } else {
+                const firstRoute = formik.values.routes[0];
+
                 formik.setFieldValue("routes", [
                   ...formik.values.routes,
-                  { ...routeDefauls },
+                  { ...firstRoute },
                 ]);
               }
             }}
