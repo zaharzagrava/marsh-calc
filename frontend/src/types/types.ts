@@ -117,23 +117,7 @@ export const mainImageTypes = [
   { type: MainImageType.Triangle, uaName: "Triangle", svgPath: "../assets/division-types/triangle.svg" },
 ];
 
-export interface RowData {
-  unitName: string;
-  numOfVehicles: number;
-  numOfConvoys: number;
-  distBetweenVehicles: number;
-  distToNextConvoy: number;
-  distBetweenConvoyHeadAndInitialPointOfDeparture: number;
-  speedOfExtraction: number;
-  speed: number;
-
-  depthOfConvoy: number;
-  timeToPassPointOfDeparture_convoyStart: DateTime;
-  timeToPassPointOfDeparture_convoyEnd: DateTime;
-
-  timeOfStartOfMovement: DateTime;
-  timeOfEndOfMovement: DateTime;
-
+export interface DivisionGraphInfo {
   leftBottomAmplificator?: string;
   rightBottomAmplificator?: string;
   centerBottomAmplificator?: string;
@@ -150,6 +134,24 @@ export interface RowData {
   mainImageTypes: MainImageType[];
 }
 
+export interface RowData extends DivisionGraphInfo {
+  unitName: string;
+  numOfVehicles: number;
+  numOfConvoys: number;
+  distBetweenVehicles: number;
+  distToNextConvoy: number;
+  distBetweenConvoyHeadAndInitialPointOfDeparture: number;
+  speedOfExtraction: number;
+  speed: number;
+
+  depthOfConvoy: number;
+  timeToPassPointOfDeparture_convoyStart: DateTime;
+  timeToPassPointOfDeparture_convoyEnd: DateTime;
+
+  timeOfStartOfMovement: DateTime;
+  timeOfEndOfMovement: DateTime;
+}
+
 export interface RouteData {
   directiveTimeOfEndOfMovement: DateTime;
   depthOfDestinationArea: number;
@@ -162,6 +164,7 @@ export interface Route {
   rows: RowData[];
   routeData: RouteData;
   groupsInfo: GroupInfo[];
+  additionalDivisions: DivisionGraphInfo[];
 }
 
 export interface GroupInfo {

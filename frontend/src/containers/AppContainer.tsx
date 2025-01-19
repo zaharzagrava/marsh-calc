@@ -97,6 +97,7 @@ const AppContainer = () => {
               rows: [2],
             },
           ],
+          additionalDivisions: [],
         },
       ],
       groups: defaultGroups,
@@ -126,9 +127,6 @@ const AppContainer = () => {
       };
     });
   }, [formik.values.routes]);
-
-  // console.log('@formik.values');
-  // console.log(JSON.stringify(formik.values, null, 2));
 
   return (
     <LocalizationProvider dateAdapter={AdapterLuxon}>

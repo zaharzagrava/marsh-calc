@@ -19,7 +19,7 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   Route,
   RowData,
@@ -28,6 +28,8 @@ import {
   TopImageType,
   topImageTypes,
   mainImageTypes,
+  MainImageType,
+  DivisionGraphInfo,
 } from "../types/types";
 import { DateTime } from "luxon";
 import { AdapterLuxon } from "@mui/x-date-pickers/AdapterLuxon";
@@ -38,6 +40,7 @@ import { columnNames } from "./AppContainer";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import EditIcon from "@mui/icons-material/Edit";
 import svgFromPath from "./svgFromPath";
+import AddIcon from "@mui/icons-material/Add";
 
 interface RoutesProps {
   route: Route;
@@ -47,7 +50,7 @@ interface RoutesProps {
 
 const Routes = ({ route, routeIndex, setFieldValue }: RoutesProps) => {
   const [selectedRowIndex, setSelectedRowIndex] = useState<number | null>(null);
-
+  const [selectedAdditionalDivisionIndex, setSelectedAdditionalDivisionIndex] = useState<number | null>(null);
   const handleAddRow = useCallback(() => {
     const newRow = { ...defaultElem };
 
@@ -70,7 +73,8 @@ const Routes = ({ route, routeIndex, setFieldValue }: RoutesProps) => {
 
   const handleModalClose = useCallback(() => {
     setSelectedRowIndex(null);
-  }, [setSelectedRowIndex]);
+    setSelectedAdditionalDivisionIndex(null);
+  }, [setSelectedRowIndex, setSelectedAdditionalDivisionIndex]);
 
   return (
     <Card sx={{ p: 1 }}>
@@ -126,54 +130,57 @@ const Routes = ({ route, routeIndex, setFieldValue }: RoutesProps) => {
         Додати рядок
       </Button>
 
-      <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
-        <LocalizationProvider dateAdapter={AdapterLuxon}>
-          <DateTimePicker
-            label="Директивний час зосередження"
-            value={route.routeData.directiveTimeOfEndOfMovement}
+      <Box sx={{ mt: 2, mb: 2 }}>
+        <Typography variant="h5">Загальні дані маршруту</Typography>
+        <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
+          <LocalizationProvider dateAdapter={AdapterLuxon}>
+            <DateTimePicker
+              label="Директивний час зосередження"
+              value={route.routeData.directiveTimeOfEndOfMovement}
+              sx={{ "& .MuiInputBase-input": { padding: "5px" } }}
+              onChange={(newValue: DateTime<boolean> | null) => {
+                setFieldValue(
+                  `routes[${routeIndex}].routeData.directiveTimeOfEndOfMovement`,
+                  newValue
+                );
+              }}
+            />
+          </LocalizationProvider>
+          <TextField
+            label="Загальний час зупинки (год.)"
+            value={route.routeData.totalTimeOfStops}
             sx={{ "& .MuiInputBase-input": { padding: "5px" } }}
-            onChange={(newValue: DateTime<boolean> | null) => {
+            onChange={(e) => {
               setFieldValue(
-                `routes[${routeIndex}].routeData.directiveTimeOfEndOfMovement`,
-                newValue
+                `routes[${routeIndex}].routeData.totalTimeOfStops`,
+                Number(e.target.value)
               );
             }}
           />
-        </LocalizationProvider>
-        <TextField
-          label="Загальний час зупинки (год.)"
-          value={route.routeData.totalTimeOfStops}
-          sx={{ "& .MuiInputBase-input": { padding: "5px" } }}
-          onChange={(e) => {
-            setFieldValue(
-              `routes[${routeIndex}].routeData.totalTimeOfStops`,
-              Number(e.target.value)
-            );
-          }}
-        />
-        <TextField
-          label="Довжина маршруту (км.)"
-          value={route.routeData.lengthOfRoute}
-          sx={{ "& .MuiInputBase-input": { padding: "5px" } }}
-          onChange={(e) => {
-            setFieldValue(
-              `routes[${routeIndex}].routeData.lengthOfRoute`,
-              Number(e.target.value)
-            );
-          }}
-        />
-        <TextField
-          label="Глибина району призначення (км.)"
-          value={route.routeData.depthOfDestinationArea}
-          sx={{ "& .MuiInputBase-input": { padding: "5px" } }}
-          onChange={(e) => {
-            setFieldValue(
-              `routes[${routeIndex}].routeData.depthOfDestinationArea`,
-              Number(e.target.value)
-            );
-          }}
-        />
-      </Stack>
+          <TextField
+            label="Довжина маршруту (км.)"
+            value={route.routeData.lengthOfRoute}
+            sx={{ "& .MuiInputBase-input": { padding: "5px" } }}
+            onChange={(e) => {
+              setFieldValue(
+                `routes[${routeIndex}].routeData.lengthOfRoute`,
+                Number(e.target.value)
+              );
+            }}
+          />
+          <TextField
+            label="Глибина району призначення (км.)"
+            value={route.routeData.depthOfDestinationArea}
+            sx={{ "& .MuiInputBase-input": { padding: "5px" } }}
+            onChange={(e) => {
+              setFieldValue(
+                `routes[${routeIndex}].routeData.depthOfDestinationArea`,
+                Number(e.target.value)
+              );
+            }}
+          />
+        </Stack>
+      </Box>
 
       <Box sx={{ mt: 2, mb: 2 }}>
         <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
@@ -192,11 +199,29 @@ const Routes = ({ route, routeIndex, setFieldValue }: RoutesProps) => {
         </Stack>
       </Box>
 
-      {selectedRowIndex !== null && (
+      <AdditionalDivisions
+        route={route}
+        routeIndex={routeIndex}
+        setSelectedAdditionalDivisionIndex={setSelectedAdditionalDivisionIndex}
+        setFieldValue={setFieldValue}
+      />
+
+      {(selectedRowIndex !== null || selectedAdditionalDivisionIndex !== null) && (
         <AmplificatorModal
-          selectedRowIndex={selectedRowIndex}
+          index={selectedRowIndex ?? selectedAdditionalDivisionIndex}
+          isAdditionalDivision={selectedAdditionalDivisionIndex !== null}
           handleModalClose={handleModalClose}
-          row={route.rows[selectedRowIndex]}
+          row={(() => {
+            if(selectedRowIndex !== null) {
+              return route.rows[selectedRowIndex];
+            }
+
+            if(selectedAdditionalDivisionIndex !== null) {
+              return route.additionalDivisions[selectedAdditionalDivisionIndex];
+            }
+
+            return route.rows[0]; // should never happen
+          })()}
           routeIndex={routeIndex}
           setFieldValue={setFieldValue}
         />
@@ -205,33 +230,92 @@ const Routes = ({ route, routeIndex, setFieldValue }: RoutesProps) => {
   );
 };
 
-interface RouteRowProps {
-  row: RowData;
-  rowIndex: number;
+interface AdditionalDivisionsProps {
   route: Route;
   routeIndex: number;
-  onRowChange: (newRows: RowData[]) => void;
-  onDeleteRow: (rowIndex: number) => void;
-  onModalOpen: (rowIndex: number) => void;
+  setSelectedAdditionalDivisionIndex: (index: number) => void;
+  setFieldValue: (field: string, value: any) => void;
 }
 
+const AdditionalDivisions: React.FC<AdditionalDivisionsProps> = ({
+  route,
+  routeIndex,
+  setSelectedAdditionalDivisionIndex,
+  setFieldValue,
+}) => {
+  return (
+    <Box sx={{ mt: 2, mb: 2 }}>
+      <Typography variant="h5">Додаткові підрозділи</Typography>
+      <Stack spacing={2}>
+        {route.additionalDivisions.map((division, index) => (
+          <Stack key={index} direction="row" spacing={2} alignItems="center">
+            <Typography>
+              {`Підрозділ ${index + 1}`}
+            </Typography>
+            <Button
+              variant="contained"
+              onClick={() => {
+                setSelectedAdditionalDivisionIndex(index);
+              }}
+            >
+              Редагувати деталі
+            </Button>
+            <IconButton
+              onClick={() => {
+                const newDivisions = [...route.additionalDivisions];
+                newDivisions.splice(index, 1);
+                setFieldValue(`routes[${routeIndex}].additionalDivisions`, newDivisions);
+              }}
+            >
+              <DeleteIcon />
+            </IconButton>
+          </Stack>
+        ))}
+        <Button
+          variant="outlined"
+          sx={{ width: "200px" }}
+          onClick={() => {
+            const newDivisions = [...route.additionalDivisions, {
+              mainImageTypes: [MainImageType.Empty]
+            }];
+            setFieldValue(`routes[${routeIndex}].additionalDivisions`, newDivisions);
+          }}
+          startIcon={<AddIcon />}
+        >
+          Додати підрозділ
+        </Button>
+      </Stack>
+    </Box>
+  );
+};
+
 interface AmplificatorModalProps {
-  selectedRowIndex: number | null;
-  row: RowData;
+  index: number | null;
+  isAdditionalDivision: boolean;
+  row: DivisionGraphInfo;
   handleModalClose: () => void;
   routeIndex: number;
   setFieldValue: (field: string, value: any) => void;
 }
 
 const AmplificatorModal = ({
-  selectedRowIndex,
+  index,
   row,
+  isAdditionalDivision,
   handleModalClose,
   routeIndex,
   setFieldValue,
 }: AmplificatorModalProps) => {
+  const editPath = useMemo(() => {
+    return `routes[${routeIndex}].${isAdditionalDivision ? "additionalDivisions" : "rows"}[${index}]`;
+  }, [isAdditionalDivision, index, routeIndex]);
+
+  const editValue = useCallback((key: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    setFieldValue(`${editPath}.${key}`, e.target.value);
+  }, [editPath, setFieldValue]);
+
   return (
-    <Dialog open={selectedRowIndex !== null} onClose={handleModalClose} maxWidth="md" fullWidth>
+    <Dialog open={index !== null} onClose={handleModalClose} maxWidth="md" fullWidth>
       <DialogTitle>Редагувати деталі підрозділу</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
@@ -240,34 +324,19 @@ const AmplificatorModal = ({
               fullWidth
               label="Лівий нижній ампліфікатор"
               value={row.leftBottomAmplificator || ''}
-              onChange={(e) =>
-                setFieldValue(
-                  `routes[${routeIndex}].rows[${selectedRowIndex}].leftBottomAmplificator`,
-                  e.target.value
-                )
-              }
+              onChange={editValue.bind(null, "leftBottomAmplificator")}
             />
             <TextField
               fullWidth
               label="Правий нижній ампліфікатор"
               value={row.rightBottomAmplificator || ''}
-              onChange={(e) =>
-                setFieldValue(
-                  `routes[${routeIndex}].rows[${selectedRowIndex}].rightBottomAmplificator`,
-                  e.target.value
-                )
-              }
+              onChange={editValue.bind(null, "rightBottomAmplificator")}
             />
             <TextField
               fullWidth
               label="Центральний нижній ампліфікатор"
               value={row.centerBottomAmplificator || ''}
-              onChange={(e) =>
-                setFieldValue(
-                  `routes[${routeIndex}].rows[${selectedRowIndex}].centerBottomAmplificator`,
-                  e.target.value
-                )
-              }
+              onChange={editValue.bind(null, "centerBottomAmplificator")}
             />
           </Stack>
 
@@ -276,34 +345,19 @@ const AmplificatorModal = ({
               fullWidth
               label="Лівий верхній ампліфікатор"
               value={row.leftTopAmplificator || ''}
-              onChange={(e) =>
-                setFieldValue(
-                  `routes[${routeIndex}].rows[${selectedRowIndex}].leftTopAmplificator`,
-                  e.target.value
-                )
-              }
+              onChange={editValue.bind(null, "leftTopAmplificator")}
             />
             <TextField
               fullWidth
               label="Правий верхній ампліфікатор"
               value={row.rightTopAmplificator || ''}
-              onChange={(e) =>
-                setFieldValue(
-                  `routes[${routeIndex}].rows[${selectedRowIndex}].rightTopAmplificator`,
-                  e.target.value
-                )
-              }
+              onChange={editValue.bind(null, "rightTopAmplificator")}
             />
             <TextField
               fullWidth
               label="Центральний верхній ампліфікатор"
               value={row.centerTopAmplificator || ''}
-              onChange={(e) =>
-                setFieldValue(
-                  `routes[${routeIndex}].rows[${selectedRowIndex}].centerTopAmplificator`,
-                  e.target.value
-                )
-              }
+              onChange={editValue.bind(null, "centerTopAmplificator")}
             />
           </Stack>
 
@@ -312,34 +366,19 @@ const AmplificatorModal = ({
               fullWidth
               label="Лівий ампліфікатор"
               value={row.leftAmplificator || ''}
-              onChange={(e) =>
-                setFieldValue(
-                  `routes[${routeIndex}].rows[${selectedRowIndex}].leftAmplificator`,
-                  e.target.value
-                )
-              }
+              onChange={editValue.bind(null, "leftAmplificator")}
             />
             <TextField
               fullWidth
               label="Правий ампліфікатор"
               value={row.rightAmplificator || ''}
-              onChange={(e) =>
-                setFieldValue(
-                  `routes[${routeIndex}].rows[${selectedRowIndex}].rightAmplificator`,
-                  e.target.value
-                )
-              }
+              onChange={editValue.bind(null, "rightAmplificator")}
             />
             <TextField
               fullWidth
               label="Центральний ампліфікатор"
               value={row.centerAmplificator || ''}
-              onChange={(e) =>
-                setFieldValue(
-                  `routes[${routeIndex}].rows[${selectedRowIndex}].centerAmplificator`,
-                  e.target.value
-                )
-              }
+              onChange={editValue.bind(null, "centerAmplificator")}
             />
           </Stack>
 
@@ -359,7 +398,7 @@ const AmplificatorModal = ({
             )}
             onChange={(_, newValue) => {
               setFieldValue(
-                `routes[${routeIndex}].rows[${selectedRowIndex}].topImageType`,
+                `${editPath}.topImageType`,
                 newValue?.type || TopImageType.None
               );
             }}
@@ -386,7 +425,7 @@ const AmplificatorModal = ({
             )}
             onChange={(_, newValue) => {
               setFieldValue(
-                `routes[${routeIndex}].rows[${selectedRowIndex}].mainImageTypes`,
+                `${editPath}.mainImageTypes`,
                 newValue.map((v) => v.type)
               );
             }}
@@ -404,6 +443,16 @@ const AmplificatorModal = ({
     </Dialog>
   );
 };
+
+interface RouteRowProps {
+  row: RowData;
+  rowIndex: number;
+  route: Route;
+  routeIndex: number;
+  onRowChange: (newRows: RowData[]) => void;
+  onDeleteRow: (rowIndex: number) => void;
+  onModalOpen: (rowIndex: number) => void;
+}
 
 const RouteRow = ({
   row,
