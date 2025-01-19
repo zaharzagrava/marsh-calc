@@ -165,6 +165,7 @@ export interface Route {
   routeData: RouteData;
   groupsInfo: GroupInfo[];
   additionalDivisions: DivisionGraphInfo[];
+  additionalDivisionsName: string;
 }
 
 export interface GroupInfo {

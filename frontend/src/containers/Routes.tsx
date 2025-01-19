@@ -55,6 +55,8 @@ const Routes = ({ route, routeIndex, setFieldValue }: RoutesProps) => {
     const newRow = { ...defaultElem };
 
     const newRows = [...route.rows, newRow];
+    console.log('@newRows');
+    console.log(newRows);
     setFieldValue(`routes[${routeIndex}].rows`, newRows);
 
     // Add new row index to last group
@@ -245,13 +247,17 @@ const AdditionalDivisions: React.FC<AdditionalDivisionsProps> = ({
 }) => {
   return (
     <Box sx={{ mt: 2, mb: 2 }}>
-      <Typography variant="h5">Додаткові підрозділи</Typography>
+      <Typography variant="h5">Додатковий підрозділ</Typography>
       <Stack spacing={2}>
+        <TextField
+          label="Назва підрозділу"
+          value={route.additionalDivisionsName}
+          onChange={(e) => {
+            setFieldValue(`routes[${routeIndex}].additionalDivisionsName`, e.target.value);
+          }}
+        />
         {route.additionalDivisions.map((division, index) => (
           <Stack key={index} direction="row" spacing={2} alignItems="center">
-            <Typography>
-              {`Підрозділ ${index + 1}`}
-            </Typography>
             <Button
               variant="contained"
               onClick={() => {
@@ -284,6 +290,7 @@ const AdditionalDivisions: React.FC<AdditionalDivisionsProps> = ({
         >
           Додати підрозділ
         </Button>
+
       </Stack>
     </Box>
   );
@@ -322,42 +329,21 @@ const AmplificatorModal = ({
           <Stack direction="row" spacing={2}>
             <TextField
               fullWidth
-              label="Лівий нижній ампліфікатор"
-              value={row.leftBottomAmplificator || ''}
-              onChange={editValue.bind(null, "leftBottomAmplificator")}
-            />
-            <TextField
-              fullWidth
-              label="Правий нижній ампліфікатор"
-              value={row.rightBottomAmplificator || ''}
-              onChange={editValue.bind(null, "rightBottomAmplificator")}
-            />
-            <TextField
-              fullWidth
-              label="Центральний нижній ампліфікатор"
-              value={row.centerBottomAmplificator || ''}
-              onChange={editValue.bind(null, "centerBottomAmplificator")}
-            />
-          </Stack>
-
-          <Stack direction="row" spacing={2}>
-            <TextField
-              fullWidth
               label="Лівий верхній ампліфікатор"
               value={row.leftTopAmplificator || ''}
               onChange={editValue.bind(null, "leftTopAmplificator")}
             />
             <TextField
               fullWidth
-              label="Правий верхній ампліфікатор"
-              value={row.rightTopAmplificator || ''}
-              onChange={editValue.bind(null, "rightTopAmplificator")}
-            />
-            <TextField
-              fullWidth
               label="Центральний верхній ампліфікатор"
               value={row.centerTopAmplificator || ''}
               onChange={editValue.bind(null, "centerTopAmplificator")}
+            />
+            <TextField
+              fullWidth
+              label="Правий верхній ампліфікатор"
+              value={row.rightTopAmplificator || ''}
+              onChange={editValue.bind(null, "rightTopAmplificator")}
             />
           </Stack>
 
@@ -370,15 +356,36 @@ const AmplificatorModal = ({
             />
             <TextField
               fullWidth
+              label="Центральний ампліфікатор"
+              value={row.centerAmplificator || ''}
+              onChange={editValue.bind(null, "centerAmplificator")}
+            />
+            <TextField
+              fullWidth
               label="Правий ампліфікатор"
               value={row.rightAmplificator || ''}
               onChange={editValue.bind(null, "rightAmplificator")}
             />
+          </Stack>
+
+          <Stack direction="row" spacing={2}>
             <TextField
               fullWidth
-              label="Центральний ампліфікатор"
-              value={row.centerAmplificator || ''}
-              onChange={editValue.bind(null, "centerAmplificator")}
+              label="Лівий нижній ампліфікатор"
+              value={row.leftBottomAmplificator || ''}
+              onChange={editValue.bind(null, "leftBottomAmplificator")}
+            />
+            <TextField
+              fullWidth
+              label="Центральний нижній ампліфікатор"
+              value={row.centerBottomAmplificator || ''}
+              onChange={editValue.bind(null, "centerBottomAmplificator")}
+            />
+            <TextField
+              fullWidth
+              label="Правий нижній ампліфікатор"
+              value={row.rightBottomAmplificator || ''}
+              onChange={editValue.bind(null, "rightBottomAmplificator")}
             />
           </Stack>
 

@@ -98,6 +98,7 @@ const AppContainer = () => {
             },
           ],
           additionalDivisions: [],
+          additionalDivisionsName: "",
         },
       ],
       groups: defaultGroups,
