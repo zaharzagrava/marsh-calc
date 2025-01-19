@@ -23,6 +23,8 @@ import { calculateDepthOfConvoy, calculateExtraColumns } from "../utils/utils";
 // https://commons.wikimedia.org/wiki/File:Military_Symbol_-_Friendly_Unit_(Bichrome_1.6x1_Frame)-_Infantry_-_Mechanized_(NATO_APP-6_Alternate).svg
 // https://commons.wikimedia.org/wiki/Category:Military_map_symbols_for_units_and_formations
 
+// Fix export - if top image is not none, then its not properly exported
+
 // List of combined iamges
 
 // TextField for left and right number (bottom)
