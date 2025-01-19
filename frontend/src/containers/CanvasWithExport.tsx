@@ -2,23 +2,7 @@ import { Button } from "@mui/material";
 import { Grid } from "@mui/material";
 import { Coordinates, divisionTypes, Route } from "../types/types";
 import { useRef, useCallback } from "react";
-
-import armourSvg from "../assets/division-types/armour.svg";
-import armour1Svg from "../assets/division-types/armour-1.svg";
-import armourAirborneSvg from "../assets/division-types/armour-airborne.svg";
-
-const svgFromPath = (path: string | undefined) => {
-  if (!path) return null;
-
-  console.log('@path');
-  console.log(path);
-  switch (path) {
-    case "../assets/division-types/armour.svg": return armourSvg;
-    case "../assets/division-types/armour-1.svg": return armour1Svg;
-    case "../assets/division-types/armour-airborne.svg": return armourAirborneSvg;
-    default: return null;
-  }
-}
+import svgFromPath from "./svgFromPath";
 
 const CanvasWithExport = ({ routes }: { routes: Route[] }) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -168,7 +152,8 @@ const CanvasWithExport = ({ routes }: { routes: Route[] }) => {
                   offset.x + groupMarginX + (rowIndex > 0 ? divisionWidth : 0);
                 const divisionY = offset.y;
 
-                const svgPath = divisionTypes.find((type) => type.type === groupDivisions[rowIndex].type)?.svgPath;
+                // const svgPath = divisionTypes.find((type) => type.type === groupDivisions[rowIndex].topImageType[0])?.svgPath;
+                const svgPath = '../assets/division-types/armour.svg';
 
                 rects.push(
                   <g
