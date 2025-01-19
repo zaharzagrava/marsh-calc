@@ -14,7 +14,6 @@ import {
   Autocomplete,
   Typography,
   IconButton,
-  SvgIcon,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -26,9 +25,7 @@ import {
   RowData,
   GroupInfo,
   defaultElem,
-  divisionTypes,
   TopImageType,
-  MainImageType,
   topImageTypes,
   mainImageTypes,
 } from "../types/types";
@@ -49,7 +46,6 @@ interface RoutesProps {
 }
 
 const Routes = ({ route, routeIndex, setFieldValue }: RoutesProps) => {
-  const [modalOpen, setModalOpen] = useState(false);
   const [selectedRowIndex, setSelectedRowIndex] = useState<number | null>(null);
 
   const handleAddRow = useCallback(() => {
@@ -68,15 +64,13 @@ const Routes = ({ route, routeIndex, setFieldValue }: RoutesProps) => {
   const handleModalOpen = useCallback(
     (rowIndex: number) => {
       setSelectedRowIndex(rowIndex);
-      setModalOpen(true);
     },
-    [setSelectedRowIndex, setModalOpen]
+    [setSelectedRowIndex]
   );
 
   const handleModalClose = useCallback(() => {
     setSelectedRowIndex(null);
-    setModalOpen(false);
-  }, [setSelectedRowIndex, setModalOpen]);
+  }, [setSelectedRowIndex]);
 
   return (
     <Card sx={{ p: 1 }}>
@@ -129,7 +123,7 @@ const Routes = ({ route, routeIndex, setFieldValue }: RoutesProps) => {
         </Table>
       </TableContainer>
       <Button variant="contained" onClick={handleAddRow} sx={{ mt: 2 }}>
-        Add Row
+        Додати рядок
       </Button>
 
       <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
@@ -237,56 +231,120 @@ const AmplificatorModal = ({
   setFieldValue,
 }: AmplificatorModalProps) => {
   return (
-    <Dialog open={selectedRowIndex !== null} onClose={handleModalClose}>
-      <DialogTitle>Edit Unit Details</DialogTitle>
+    <Dialog open={selectedRowIndex !== null} onClose={handleModalClose} maxWidth="md" fullWidth>
+      <DialogTitle>Редагувати деталі підрозділу</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
-          <TextField
-            fullWidth
-            label="Left Bottom Amplificator"
-            value={row.leftBottomAmplificator}
-            onChange={(e) =>
-              setFieldValue(
-                `routes[${routeIndex}].rows[${selectedRowIndex}].leftBottomAmplificator`,
-                e.target.value
-              )
-            }
-          />
-          <TextField
-            fullWidth
-            label="Right Bottom Amplificator"
-            value={row.rightBottomAmplificator}
-            onChange={(e) =>
-              setFieldValue(
-                `routes[${routeIndex}].rows[${selectedRowIndex}].rightBottomAmplificator`,
-                e.target.value
-              )
-            }
-          />
-          <TextField
-            fullWidth
-            label="Center Bottom Amplificator"
-            value={row.centerBottomAmplificator}
-            onChange={(e) =>
-              setFieldValue(
-                `routes[${routeIndex}].rows[${selectedRowIndex}].centerBottomAmplificator`,
-                e.target.value
-              )
-            }
-          />
-          <TextField
-            fullWidth
-            label="Inside Center Top Amplificator"
-            value={row.insideCenterTopAmplificator}
-            onChange={(e) =>
-              setFieldValue(
-                `routes[${routeIndex}].rows[${selectedRowIndex}].insideCenterTopAmplificator`,
-                e.target.value
-              )
-            }
-          />
+          <Stack direction="row" spacing={2}>
+            <TextField
+              fullWidth
+              label="Лівий нижній ампліфікатор"
+              value={row.leftBottomAmplificator || ''}
+              onChange={(e) =>
+                setFieldValue(
+                  `routes[${routeIndex}].rows[${selectedRowIndex}].leftBottomAmplificator`,
+                  e.target.value
+                )
+              }
+            />
+            <TextField
+              fullWidth
+              label="Правий нижній ампліфікатор"
+              value={row.rightBottomAmplificator || ''}
+              onChange={(e) =>
+                setFieldValue(
+                  `routes[${routeIndex}].rows[${selectedRowIndex}].rightBottomAmplificator`,
+                  e.target.value
+                )
+              }
+            />
+            <TextField
+              fullWidth
+              label="Центральний нижній ампліфікатор"
+              value={row.centerBottomAmplificator || ''}
+              onChange={(e) =>
+                setFieldValue(
+                  `routes[${routeIndex}].rows[${selectedRowIndex}].centerBottomAmplificator`,
+                  e.target.value
+                )
+              }
+            />
+          </Stack>
+
+          <Stack direction="row" spacing={2}>
+            <TextField
+              fullWidth
+              label="Лівий верхній ампліфікатор"
+              value={row.leftTopAmplificator || ''}
+              onChange={(e) =>
+                setFieldValue(
+                  `routes[${routeIndex}].rows[${selectedRowIndex}].leftTopAmplificator`,
+                  e.target.value
+                )
+              }
+            />
+            <TextField
+              fullWidth
+              label="Правий верхній ампліфікатор"
+              value={row.rightTopAmplificator || ''}
+              onChange={(e) =>
+                setFieldValue(
+                  `routes[${routeIndex}].rows[${selectedRowIndex}].rightTopAmplificator`,
+                  e.target.value
+                )
+              }
+            />
+            <TextField
+              fullWidth
+              label="Центральний верхній ампліфікатор"
+              value={row.centerTopAmplificator || ''}
+              onChange={(e) =>
+                setFieldValue(
+                  `routes[${routeIndex}].rows[${selectedRowIndex}].centerTopAmplificator`,
+                  e.target.value
+                )
+              }
+            />
+          </Stack>
+
+          <Stack direction="row" spacing={2}>
+            <TextField
+              fullWidth
+              label="Лівий ампліфікатор"
+              value={row.leftAmplificator || ''}
+              onChange={(e) =>
+                setFieldValue(
+                  `routes[${routeIndex}].rows[${selectedRowIndex}].leftAmplificator`,
+                  e.target.value
+                )
+              }
+            />
+            <TextField
+              fullWidth
+              label="Правий ампліфікатор"
+              value={row.rightAmplificator || ''}
+              onChange={(e) =>
+                setFieldValue(
+                  `routes[${routeIndex}].rows[${selectedRowIndex}].rightAmplificator`,
+                  e.target.value
+                )
+              }
+            />
+            <TextField
+              fullWidth
+              label="Центральний ампліфікатор"
+              value={row.centerAmplificator || ''}
+              onChange={(e) =>
+                setFieldValue(
+                  `routes[${routeIndex}].rows[${selectedRowIndex}].centerAmplificator`,
+                  e.target.value
+                )
+              }
+            />
+          </Stack>
+
           <Autocomplete
-            value={topImageTypes.find((t) => t.type === row.topImageType)}
+            value={topImageTypes.find((t) => t.type === row.topImageType) || null}
             options={topImageTypes}
             getOptionLabel={(option) => option.uaName}
             renderOption={(props, option) => (
@@ -306,14 +364,14 @@ const AmplificatorModal = ({
               );
             }}
             renderInput={(params) => (
-              <TextField {...params} label="Top Image Type" />
+              <TextField {...params} label="Тип верхнього зображення" />
             )}
           />
           <Autocomplete
             multiple
             value={mainImageTypes.filter((t) =>
               row.mainImageTypes?.includes(t.type)
-            )}
+            ) || []}
             options={mainImageTypes}
             getOptionLabel={(option) => option.uaName}
             renderOption={(props, option) => (
@@ -333,15 +391,14 @@ const AmplificatorModal = ({
               );
             }}
             renderInput={(params) => (
-              <TextField {...params} label="Main Image Types" />
+              <TextField {...params} label="Типи основних зображень" />
             )}
           />
         </Stack>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleModalClose}>Cancel</Button>
         <Button onClick={handleModalClose} variant="contained">
-          Save
+          Зберегти
         </Button>
       </DialogActions>
     </Dialog>
@@ -405,7 +462,12 @@ const RouteRow = ({
               "leftBottomAmplificator",
               "rightBottomAmplificator",
               "centerBottomAmplificator",
-              "insideCenterTopAmplificator",
+              "leftTopAmplificator",
+              "rightTopAmplificator",
+              "centerTopAmplificator",
+              "leftAmplificator",
+              "rightAmplificator",
+              "centerAmplificator",
               "topImageType",
               "mainImageTypes",
             ].includes(key)

@@ -1,6 +1,6 @@
 import { Button } from "@mui/material";
 import { Grid } from "@mui/material";
-import { Coordinates, divisionTypes, Route } from "../types/types";
+import { Coordinates, mainImageTypes, topImageTypes, Route } from "../types/types";
 import { useRef, useCallback } from "react";
 import svgFromPath from "./svgFromPath";
 
@@ -152,20 +152,150 @@ const CanvasWithExport = ({ routes }: { routes: Route[] }) => {
                   offset.x + groupMarginX + (rowIndex > 0 ? divisionWidth : 0);
                 const divisionY = offset.y;
 
-                // const svgPath = divisionTypes.find((type) => type.type === groupDivisions[rowIndex].topImageType[0])?.svgPath;
-                const svgPath = '../assets/division-types/armour.svg';
+                const divisionMainImageTypes = mainImageTypes.filter(t => groupDivisions[rowIndex].mainImageTypes?.includes(t.type));
+                const divisionTopImageType = topImageTypes.find(t => t.type === groupDivisions[rowIndex].topImageType);
+
+                // Render all main image types
+                const mainImages = divisionMainImageTypes.map((imageType, i) => (
+                  <image
+                    key={`main-${i}`}
+                    href={svgFromPath(imageType.svgPath) || ''}
+                    x={divisionX}
+                    y={divisionY}
+                    width={divisionWidth}
+                    height={divisionHeight}
+                  />
+                ));
+
+                // Render all top image types
+                const topImages = [divisionTopImageType].map((imageType, i) => (
+                  <image
+                    key={`top-${i}`}
+                    href={svgFromPath(imageType?.svgPath) || ''}
+                    x={divisionX}
+                    y={divisionY - divisionHeight + 23}
+                    width={divisionWidth}
+                    height={divisionHeight}
+                  />
+                ));
+  
+                const texts = [
+                  // Left bottom amplificator
+                  <text
+                    key="left-bottom"
+                    x={divisionX - 10}
+                    y={divisionY + divisionHeight}
+                    fill="black"
+                    fontSize="14"
+                    textAnchor="start"
+                  >
+                    {groupDivisions[rowIndex].leftBottomAmplificator || ''}
+                  </text>,
+
+                  // Center bottom amplificator  
+                  <text
+                    key="center-bottom"
+                    x={divisionX + divisionWidth / 2}
+                    y={divisionY + divisionHeight - 5}
+                    fill="black"
+                    fontSize="14"
+                    textAnchor="middle"
+                  >
+                    {groupDivisions[rowIndex].centerBottomAmplificator || ''}
+                  </text>,
+
+                  // Right bottom amplificator
+                  <text
+                    key="right-bottom" 
+                    x={divisionX + divisionWidth + 10}
+                    y={divisionY + divisionHeight}
+                    fill="black"
+                    fontSize="14"
+                    textAnchor="end"
+                  >
+                    {groupDivisions[rowIndex].rightBottomAmplificator || ''}
+                  </text>,
+
+                  // Left top amplificator
+                  <text
+                    key="left-top"
+                    x={divisionX - 10}
+                    y={divisionY + 10}
+                    fill="black"
+                    fontSize="14"
+                    textAnchor="start"
+                  >
+                    {groupDivisions[rowIndex].leftTopAmplificator || ''}
+                  </text>,
+
+                  // Right top amplificator
+                  <text
+                    key="right-top"
+                    x={divisionX + divisionWidth + 10}
+                    y={divisionY + 10}
+                    fill="black"
+                    fontSize="14"
+                    textAnchor="end"
+                  >
+                    {groupDivisions[rowIndex].rightTopAmplificator || ''}
+                  </text>,
+
+                  // Center top amplificator
+                  <text
+                    key="center-top"
+                    x={divisionX + divisionWidth / 2}
+                    y={divisionY + 15}
+                    fill="black"
+                    fontSize="14"
+                    textAnchor="middle"
+                  >
+                    {groupDivisions[rowIndex].centerTopAmplificator || ''}
+                  </text>,
+
+                  // Left amplificator
+                  <text
+                    key="left"
+                    x={divisionX - 10}
+                    y={divisionY + (divisionHeight / 2) + 5}
+                    fill="black"
+                    fontSize="14"
+                    textAnchor="start"
+                  >
+                    {groupDivisions[rowIndex].leftAmplificator || ''}
+                  </text>,
+
+                  // Right amplificator
+                  <text
+                    key="right"
+                    x={divisionX + divisionWidth + 10}
+                    y={divisionY + (divisionHeight / 2) + 5}
+                    fill="black"
+                    fontSize="14"
+                    textAnchor="end"
+                  >
+                    {groupDivisions[rowIndex].rightAmplificator || ''}
+                  </text>,
+
+                  // Center amplificator
+                  <text
+                    key="center"
+                    x={divisionX + divisionWidth / 2}
+                    y={divisionY + (divisionHeight / 2) + 5}
+                    fill="black"
+                    fontSize="14"
+                    textAnchor="middle"
+                  >
+                    {groupDivisions[rowIndex].centerAmplificator || ''}
+                  </text>,
+                ];
 
                 rects.push(
                   <g
                     key={`${routes[0].groupsInfo[groupIndex].name}-${index}-${rowIndex}`}
                   >
-                    <image
-                      href={svgFromPath(svgPath) || './assets/divistion-types/armour.svg'}
-                      x={divisionX}
-                      y={divisionY}
-                      width={divisionWidth}
-                      height={divisionHeight}
-                    />
+                    {mainImages}
+                    {topImages}
+                    {texts}
                     {/* Blue vertical line */}
                     <line
                       x1={divisionX + divisionWidth / 2}
@@ -243,16 +373,10 @@ const CanvasWithExport = ({ routes }: { routes: Route[] }) => {
                     </text>
                     <text
                       x={(() => {
-                        const x = divisionX + divisionWidth;
+                        const x = divisionX + divisionWidth + 15;
                         const isLastDivision = rowIndex === groupDivisions.length - 1;
                         if(isLastDivision) {
-                          const distToNextConvoy = groupDivisions[rowIndex].distToNextConvoy
-
-                          if(!distToNextConvoy) {
-                            return x + 35; // doesnt matter cause number is not present
-                          }
-
-                          return x + 35 - ((distToNextConvoy.toString().length - 1) * 7);
+                          return x + 23; // doesnt matter cause number is not present
                         }
 
                         return x;
@@ -260,7 +384,7 @@ const CanvasWithExport = ({ routes }: { routes: Route[] }) => {
                       y={divisionY + divisionHeight + rectBottomOffset2 + 35}
                       fill="black"
                       fontSize="18"
-                      textAnchor="start"
+                      textAnchor="middle"
                     >
                       {groupDivisions[rowIndex].distToNextConvoy}
                     </text>
@@ -306,6 +430,7 @@ const CanvasWithExport = ({ routes }: { routes: Route[] }) => {
           const pointyOffset = 10;
           elements.push(
             <path
+              key="blue-arrow"
               d={`M ${initialOffset.x - 10} ${initialOffset.y - 100}
                   L ${groupOffset.x + rightMargin} ${initialOffset.y - 100}
                   L ${groupOffset.x + rightMargin} ${initialOffset.y - 100 - pointyOffset}
