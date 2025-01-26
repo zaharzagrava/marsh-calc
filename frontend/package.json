@@ -23,6 +23,7 @@
     "@sentry/tracing": "^7.114.0",
     "axios": "^1.7.4",
     "formik": "^2.4.6",
+    "html2canvas": "^1.4.1",
     "immer": "^10.1.1",
     "lodash": "^4.17.21",
     "luxon": "^3.5.0",

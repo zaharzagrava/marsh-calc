@@ -1,7 +1,17 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useFormik } from "formik";
 import {
   Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Table,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  DialogActions,
 } from "@mui/material";
 import { AdapterLuxon } from "@mui/x-date-pickers/AdapterLuxon";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -13,6 +23,7 @@ import CanvasWithExport from "./CanvasWithExport";
 import GroupsEditor from "./GroupsEditor";
 import Routes from "./Routes";
 import { calculateDepthOfConvoy, calculateExtraColumns } from "../utils/utils";
+import html2canvas from "html2canvas";
 
 // https://en.wikipedia.org/wiki/NATO_Joint_Military_Symbology#:~:text=Blue%20or%20black%20for%20friendly,biological%2C%20radiological%20or%20nuclear%20events
 // https://en.wikipedia.org/wiki/File:Military_Symbol_-_Friendly_Unit_(Monochrome_Dark_1.5x1_Frame)-_Infantry_-_Mechanized_(NATO_APP-6).svg
@@ -24,8 +35,8 @@ import { calculateDepthOfConvoy, calculateExtraColumns } from "../utils/utils";
 // https://commons.wikimedia.org/wiki/Category:Military_map_symbols_for_units_and_formations
 
 // Save content to JSON
+
 // Fix export - if top image is not none, then its not properly exported
-// Decinmals input
 // Fix formula
 
 // Type - default / KP
@@ -52,11 +63,25 @@ export const columnNames = {
 };
 
 const AppContainer = () => {
+  const [previewOpen, setPreviewOpen] = useState(false);
+
   const defaultGroups = useMemo(() => {
-    return [
-      { name: "Похідна охорона" },
-      { name: "Підрозділи ТхЗ, ТлЗ" },
-    ];
+    return [{ name: "Похідна охорона" }, { name: "Підрозділи ТхЗ, ТлЗ" }];
+  }, []);
+
+  const handleExportTable = useCallback(() => {
+    const table = document.querySelector("#preview-table");
+    if (!table) return;
+
+    html2canvas(table as HTMLElement, {
+      backgroundColor: null,
+      scale: 2,
+    }).then((canvas: HTMLCanvasElement) => {
+      const link = document.createElement("a");
+      link.download = `preview-table.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    });
   }, []);
 
   const formik = useFormik<{
@@ -164,19 +189,151 @@ const AppContainer = () => {
                 ]);
               }
             }}
-            sx={{ alignSelf: "flex-start" }}
+            sx={{ alignSelf: "flex-start", mr: 2 }}
           >
             {formik.values.routes.length > 1
               ? "Прибрати другий маршрут"
               : "Додати другий маршрут"}
           </Button>
+          <Button variant="contained" onClick={() => setPreviewOpen(true)}>
+            Попередній перегляд та експорт
+          </Button>
         </Grid>
         <Grid item>
           <CanvasWithExport routes={processedRoutes} />
         </Grid>
+
+        <PreviewModal
+          open={previewOpen}
+          onClose={() => setPreviewOpen(false)}
+          processedRoutes={processedRoutes}
+          onExport={handleExportTable}
+        />
       </Grid>
     </LocalizationProvider>
   );
 };
+
+interface PreviewModalProps {
+  open: boolean;
+  onClose: () => void;
+  processedRoutes: Route[];
+  onExport: () => void;
+}
+
+const PreviewModal = ({
+  open,
+  onClose,
+  processedRoutes,
+  onExport,
+}: PreviewModalProps) => (
+  <Dialog
+    open={open}
+    onClose={onClose}
+    maxWidth={false}
+    fullWidth
+    sx={{ "& .MuiDialog-paper": { width: "100vw", margin: 2 } }}
+  >
+    <DialogTitle>Попередній перегляд таблиці</DialogTitle>
+    <DialogContent>
+      <TableContainer id="preview-table">
+        <Table>
+          <TableHead>
+            <TableRow>
+              {Object.entries(columnNames).map(([key, columnName]) => (
+                <TableCell
+                  key={key}
+                  sx={{
+                    border: "2px solid black",
+                  }}
+                >
+                  {columnName}
+                </TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {processedRoutes
+              .map((route, routeIndex) => {
+                return (
+                  <>
+                    <TableRow>
+                      <TableCell
+                        colSpan={Object.keys(columnNames).length}
+                        sx={{
+                          padding: "8px",
+                          border: "2px solid black",
+                          textAlign: "center",
+                          fontSize: "18px",
+                        }}
+                      >
+                        Маршрут {routeIndex + 1}
+                      </TableCell>
+                    </TableRow>
+                    {route.rows.map((row, rowIndex) => (
+                      <TableRow key={rowIndex}>
+                        {Object.entries(row)
+                          .filter(
+                            ([key]) =>
+                              ![
+                                "leftBottomAmplificator",
+                                "rightBottomAmplificator",
+                                "centerBottomAmplificator",
+                                "leftTopAmplificator",
+                                "rightTopAmplificator",
+                                "centerTopAmplificator",
+                                "leftAmplificator",
+                                "rightAmplificator",
+                                "centerAmplificator",
+                                "topImageType",
+                                "mainImageTypes",
+                                "isUplifted",
+                                "additionalDivision",
+                              ].includes(key)
+                          )
+                          .map(([key, value], colIndex) => (
+                            <TableCell
+                              key={`${rowIndex}-${colIndex}`}
+                              sx={{
+                                padding: "5px",
+                                border: "2px solid black",
+                                textAlign: "center",
+                              }}
+                            >
+                              {(() => {
+                                if (
+                                  [
+                                    "timeToPassPointOfDeparture_convoyStart",
+                                    "timeToPassPointOfDeparture_convoyEnd",
+                                    "timeOfStartOfMovement",
+                                    "timeOfEndOfMovement",
+                                  ].includes(key)
+                                ) {
+                                  return (value as DateTime).toFormat(
+                                    "HH год. mm хв. dd.MM.yyyy"
+                                  );
+                                }
+                                return value;
+                              })()}
+                            </TableCell>
+                          ))}
+                      </TableRow>
+                    ))}
+                  </>
+                );
+              })
+              .flat()}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </DialogContent>
+    <DialogActions>
+      <Button onClick={onClose}>Закрити</Button>
+      <Button onClick={onExport} variant="contained">
+        Експортувати
+      </Button>
+    </DialogActions>
+  </Dialog>
+);
 
 export default AppContainer;

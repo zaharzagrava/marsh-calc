@@ -44,6 +44,7 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import EditIcon from "@mui/icons-material/Edit";
 import svgFromPath from "./svgFromPath";
 import AddIcon from "@mui/icons-material/Add";
+import html2canvas from 'html2canvas';
 
 interface RoutesProps {
   route: Route;
@@ -130,7 +131,7 @@ const Routes = ({ route, routeIndex, setFieldValue }: RoutesProps) => {
           </TableBody>
         </Table>
       </TableContainer>
-      <Button variant="contained" onClick={handleAddRow} sx={{ mt: 2 }}>
+      <Button variant="contained" onClick={handleAddRow}>
         Додати рядок
       </Button>
 
@@ -153,6 +154,7 @@ const Routes = ({ route, routeIndex, setFieldValue }: RoutesProps) => {
           <TextField
             label="Загальний час привалів (год.)"
             value={route.routeData.totalTimeOfStops}
+            type="number"
             sx={{ "& .MuiInputBase-input": { padding: "5px" } }}
             onChange={(e) => {
               setFieldValue(
@@ -164,6 +166,7 @@ const Routes = ({ route, routeIndex, setFieldValue }: RoutesProps) => {
           <TextField
             label="Довжина маршруту (км.)"
             value={route.routeData.lengthOfRoute}
+            type="number"
             sx={{ "& .MuiInputBase-input": { padding: "5px" } }}
             onChange={(e) => {
               setFieldValue(
@@ -175,6 +178,7 @@ const Routes = ({ route, routeIndex, setFieldValue }: RoutesProps) => {
           <TextField
             label="Глибина району призначення (км.)"
             value={route.routeData.depthOfDestinationArea}
+            type="number"
             sx={{ "& .MuiInputBase-input": { padding: "5px" } }}
             onChange={(e) => {
               setFieldValue(
@@ -498,8 +502,9 @@ const RouteRow = ({
               "centerAmplificator",
               "topImageType",
               "mainImageTypes",
-              "additionalDivision",
               "isUplifted",
+
+              "additionalDivision",
             ].includes(key)
         )
         .map(([key, value], colIndex) => (
@@ -538,6 +543,7 @@ const RouteRow = ({
                   <TextField
                     fullWidth
                     value={value}
+                    type={key === "unitName" ? "text" : "number"}
                     disabled={key === "distToNextConvoy" && rowIndex === 0}
                     sx={{
                       "& .MuiInputBase-input": {

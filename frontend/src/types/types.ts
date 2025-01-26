@@ -151,14 +151,15 @@ export interface RowData extends DivisionGraphInfo {
   speedOfExtraction: number;
   speed: number;
 
+  additionalDivision?: DivisionGraphInfo;
+
+  // Calculated data
   depthOfConvoy: number;
   timeToPassPointOfDeparture_convoyStart: DateTime;
   timeToPassPointOfDeparture_convoyEnd: DateTime;
 
   timeOfStartOfMovement: DateTime;
   timeOfEndOfMovement: DateTime;
-
-  additionalDivision?: DivisionGraphInfo;
 }
 
 export interface RouteData {
