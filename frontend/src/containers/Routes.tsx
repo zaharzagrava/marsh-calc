@@ -30,7 +30,6 @@ import {
   TopImageType,
   topImageTypes,
   mainImageTypes,
-  MainImageType,
   DivisionGraphInfo,
   defaultElemGraphInfo,
 } from "../types/types";
@@ -44,7 +43,6 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import EditIcon from "@mui/icons-material/Edit";
 import svgFromPath from "./svgFromPath";
 import AddIcon from "@mui/icons-material/Add";
-import html2canvas from 'html2canvas';
 
 interface RoutesProps {
   route: Route;
@@ -109,7 +107,6 @@ const Routes = ({ route, routeIndex, setFieldValue }: RoutesProps) => {
 
                   // Update groups to remove this row index and shift other indices
                   const newGroupsInfo: GroupInfo[] = [];
-                  const startDecrement = false;
                   for (const currentGroup of route.groupsInfo) {
                     const newGroupInfo: GroupInfo = {
                       name: currentGroup.name,

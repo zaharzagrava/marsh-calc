@@ -87,7 +87,6 @@ export const defaultElem: RowData = {
 };
 
 export const topImageTypes = [
-  { type: TopImageType.None, uaName: "None", svgPath: "../assets/division-types/armour.svg" },
   { type: TopImageType.Circle1, uaName: "Circle1", svgPath: "../assets/top-image-types/circle-1.svg" },
   { type: TopImageType.Circle2, uaName: "Circle2", svgPath: "../assets/top-image-types/circle-2.svg" },
   { type: TopImageType.Circle3, uaName: "Circle3", svgPath: "../assets/top-image-types/circle-3.svg" },

@@ -57,16 +57,18 @@ const renderDivision = ({
     />
   ));
 
-  const topImages = [divisionTopImageType].map((imageType, i) => (
-    <image
-      key={`top-${i}`}
-      href={svgFromPath(imageType?.svgPath) || ""}
-      x={divisionX}
-      y={divisionY - divisionHeight + 23}
-      width={divisionWidth}
-      height={divisionHeight}
-    />
-  ));
+  if(divisionTopImageType) {
+    mainImages.push(
+      <image
+        key={`top`}
+        href={svgFromPath(divisionTopImageType?.svgPath) || ""}
+        x={divisionX}
+        y={divisionY - divisionHeight + 23}
+        width={divisionWidth}
+        height={divisionHeight}
+      />
+    );
+  }
 
   const texts = [
     // Left top amplificator
@@ -181,7 +183,6 @@ const renderDivision = ({
   return (
     <g key={`${routes[0].groupsInfo[groupIndex].name}-${indexStr}`}>
       {mainImages}
-      {topImages}
       {texts}
       {/* Blue vertical line */}
       <line
