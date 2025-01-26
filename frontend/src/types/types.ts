@@ -65,6 +65,7 @@ export const defaultElemGraphInfo: DivisionGraphInfo = {
 
   topImageType: TopImageType.None,
   mainImageTypes: [MainImageType.Empty],
+  isUplifted: false,
 };
 
 export const defaultElem: RowData = {
@@ -136,6 +137,8 @@ export interface DivisionGraphInfo {
 
   topImageType?: TopImageType;
   mainImageTypes: MainImageType[];
+
+  isUplifted?: boolean;
 }
 
 export interface RowData extends DivisionGraphInfo {

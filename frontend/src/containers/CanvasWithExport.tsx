@@ -27,7 +27,7 @@ interface RenderDivisionParams {
 const renderDivision = ({
   division,
   divisionX,
-  divisionY,
+  divisionY: paramDivisionY,
   divisionWidth,
   divisionHeight,
   rectBottomOffset,
@@ -38,6 +38,7 @@ const renderDivision = ({
   routes,
   skipBlackLines,
 }: RenderDivisionParams) => {
+  const divisionY = paramDivisionY - (division.isUplifted ? 20 : 0);
   const divisionMainImageTypes = mainImageTypes.filter((t) =>
     division.mainImageTypes?.includes(t.type)
   );
@@ -184,29 +185,29 @@ const renderDivision = ({
       {texts}
       {/* Blue vertical line */}
       <line
-        x1={divisionX + divisionWidth / 2}
-        y1={divisionY + divisionHeight}
-        x2={divisionX + divisionWidth / 2}
-        y2={divisionY + divisionHeight + rectBottomOffset}
+        x1={divisionX + (division.isUplifted ? 0 : divisionWidth / 2) + 1}
+        y1={divisionY + divisionHeight - (division.isUplifted ? 3 : 0)}
+        x2={divisionX + (division.isUplifted ? 0 : divisionWidth / 2) + 1}
+        y2={paramDivisionY + divisionHeight + rectBottomOffset}
         stroke="blue"
-        strokeWidth="3"
+        strokeWidth="2"
       />
       {/* Blue horizontal line */}
       <line
         x1={divisionX}
-        y1={divisionY + divisionHeight + rectBottomOffset}
+        y1={paramDivisionY + divisionHeight + rectBottomOffset}
         x2={divisionX + divisionWidth - 10}
-        y2={divisionY + divisionHeight + rectBottomOffset}
+        y2={paramDivisionY + divisionHeight + rectBottomOffset}
         stroke="blue"
-        strokeWidth="3"
+        strokeWidth="2"
       />
       <polygon
-        points={`${divisionX},${divisionY + divisionHeight + rectBottomOffset} ${divisionX + divisionWidth - 20},${divisionY + divisionHeight + rectBottomOffset} ${divisionX + divisionWidth - 20},${divisionY + divisionHeight + rectBottomOffset - 5} ${divisionX + divisionWidth},${divisionY + divisionHeight + rectBottomOffset} ${divisionX + divisionWidth - 20},${divisionY + divisionHeight + rectBottomOffset + 5} ${divisionX + divisionWidth - 20},${divisionY + divisionHeight + rectBottomOffset}`}
+        points={`${divisionX},${paramDivisionY + divisionHeight + rectBottomOffset} ${divisionX + divisionWidth - 20},${paramDivisionY + divisionHeight + rectBottomOffset} ${divisionX + divisionWidth - 20},${paramDivisionY + divisionHeight + rectBottomOffset - 5} ${divisionX + divisionWidth},${paramDivisionY + divisionHeight + rectBottomOffset} ${divisionX + divisionWidth - 20},${paramDivisionY + divisionHeight + rectBottomOffset + 5} ${divisionX + divisionWidth - 20},${paramDivisionY + divisionHeight + rectBottomOffset}`}
         fill="blue"
       />
       <text
         x={divisionX + divisionWidth / 2}
-        y={divisionY + divisionHeight + rectBottomOffset + 20}
+        y={paramDivisionY + divisionHeight + rectBottomOffset + 20}
         fill="black"
         fontSize="18"
         textAnchor="middle"
@@ -218,41 +219,41 @@ const renderDivision = ({
           {/* Black vertical line */}
           <line
             x1={divisionX}
-            y1={divisionY + divisionHeight + rectBottomOffset}
+            y1={paramDivisionY + divisionHeight + rectBottomOffset}
             x2={divisionX}
-            y2={divisionY + divisionHeight + rectBottomOffset2 + 15}
+            y2={paramDivisionY + divisionHeight + rectBottomOffset2 + 15}
             stroke="black"
             strokeWidth="1"
           />
           <line
             x1={divisionX + divisionWidth}
-            y1={divisionY + divisionHeight + rectBottomOffset}
+            y1={paramDivisionY + divisionHeight + rectBottomOffset}
             x2={divisionX + divisionWidth}
-            y2={divisionY + divisionHeight + rectBottomOffset2 + 15}
+            y2={paramDivisionY + divisionHeight + rectBottomOffset2 + 15}
             stroke="black"
             strokeWidth="1"
           />
           {/* Two black arrows */}
           <polygon
-            points={`${divisionX},${divisionY + divisionHeight + rectBottomOffset2} ${divisionX + divisionWidth - 20},${divisionY + divisionHeight + rectBottomOffset2} ${divisionX + divisionWidth - 20},${divisionY + divisionHeight + rectBottomOffset2 - 5} ${divisionX + divisionWidth},${divisionY + divisionHeight + rectBottomOffset2} ${divisionX + divisionWidth - 20},${divisionY + divisionHeight + rectBottomOffset2 + 5} ${divisionX + divisionWidth - 20},${divisionY + divisionHeight + rectBottomOffset2}`}
+            points={`${divisionX},${paramDivisionY + divisionHeight + rectBottomOffset2} ${divisionX + divisionWidth - 20},${paramDivisionY + divisionHeight + rectBottomOffset2} ${divisionX + divisionWidth - 20},${paramDivisionY + divisionHeight + rectBottomOffset2 - 5} ${divisionX + divisionWidth},${paramDivisionY + divisionHeight + rectBottomOffset2} ${divisionX + divisionWidth - 20},${paramDivisionY + divisionHeight + rectBottomOffset2 + 5} ${divisionX + divisionWidth - 20},${paramDivisionY + divisionHeight + rectBottomOffset2}`}
             fill="black"
           />
           <polygon
-            points={`${divisionX},${divisionY + divisionHeight + rectBottomOffset2} ${divisionX + 20},${divisionY + divisionHeight + rectBottomOffset2} ${divisionX + 20},${divisionY + divisionHeight + rectBottomOffset2 - 5} ${divisionX},${divisionY + divisionHeight + rectBottomOffset2} ${divisionX + 20},${divisionY + divisionHeight + rectBottomOffset2 + 5} ${divisionX + 20},${divisionY + divisionHeight + rectBottomOffset2}`}
+            points={`${divisionX},${paramDivisionY + divisionHeight + rectBottomOffset2} ${divisionX + 20},${paramDivisionY + divisionHeight + rectBottomOffset2} ${divisionX + 20},${paramDivisionY + divisionHeight + rectBottomOffset2 - 5} ${divisionX},${paramDivisionY + divisionHeight + rectBottomOffset2} ${divisionX + 20},${paramDivisionY + divisionHeight + rectBottomOffset2 + 5} ${divisionX + 20},${paramDivisionY + divisionHeight + rectBottomOffset2}`}
             fill="black"
           />
           {/* Black horizontal line */}
           <line
             x1={divisionX}
-            y1={divisionY + divisionHeight + rectBottomOffset2}
+            y1={paramDivisionY + divisionHeight + rectBottomOffset2}
             x2={divisionX + divisionWidth - 10}
-            y2={divisionY + divisionHeight + rectBottomOffset2}
+            y2={paramDivisionY + divisionHeight + rectBottomOffset2}
             stroke="black"
             strokeWidth="2"
           />
           <text
             x={divisionX + divisionWidth / 2}
-            y={divisionY + divisionHeight + rectBottomOffset2 + 20}
+            y={paramDivisionY + divisionHeight + rectBottomOffset2 + 20}
             fill="black"
             fontSize="18"
             textAnchor="middle"
@@ -269,7 +270,7 @@ const renderDivision = ({
 
                 return x;
               })()}
-              y={divisionY + divisionHeight + rectBottomOffset2 + 35}
+              y={paramDivisionY + divisionHeight + rectBottomOffset2 + 35}
               fill="black"
               fontSize="18"
               textAnchor="middle"
@@ -496,6 +497,32 @@ const CanvasWithExport = ({ routes }: { routes: Route[] }) => {
                 offset.y = divisionY;
               }
 
+              if(gi === 0) {
+                // Paint index of route with cicrcle around it
+                rects.push(
+                  <>
+                  <text
+                    x={offset.x + divisionWidth + (groupMarginX * 2)}
+                    y={offset.y + (divisionHeight / 2) + 2}
+                    fill="black"
+                    fontSize="18"
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                  >
+                    {index + 1}
+                  </text>
+                    <circle
+                      cx={offset.x + divisionWidth + (groupMarginX * 2)}
+                      cy={offset.y + (divisionHeight / 2)}
+                      r={15}
+                      fill="none"
+                      stroke="blue"
+                      strokeWidth="2"
+                    />
+                  </>
+                );
+              }
+
               const doesThisRouteHasAdditionalDivision = !!routes[index].rows.find(r => r.additionalDivision);
               if(doesThisRouteHasAdditionalDivision && gi === 0 && firstAdditionalDivisionX && lastAdditionalDivisionX) {
                 if(topRoute) {
@@ -567,20 +594,31 @@ const CanvasWithExport = ({ routes }: { routes: Route[] }) => {
           const isLastRouteHasAdditionalDivision = routes[1]?.additionalDivisionName;
           const adjustedLastGroupHeight = lastGroupHeight + (isLastRouteHasAdditionalDivision ? 225 : 0);
           elements.push(
-            <path
-              key="blue-arrow"
-              d={`M ${initialOffset.x - 10} ${initialOffset.y}
-                  L ${groupOffset.x + rightMargin} ${initialOffset.y}
-                  L ${groupOffset.x + rightMargin} ${initialOffset.y - pointyOffset}
-                  L ${groupOffset.x + rightMargin + 20} ${(groupOffset.y + adjustedLastGroupHeight + 120) / 2}
-                  L ${groupOffset.x + rightMargin} ${groupOffset.y + adjustedLastGroupHeight + 20 + pointyOffset}
-                  L ${groupOffset.x + rightMargin} ${groupOffset.y + adjustedLastGroupHeight + 20}
-                  L ${initialOffset.x - 10} ${groupOffset.y + adjustedLastGroupHeight + 20}
-                  Z`}
-              fill="none"
-              stroke="blue"
-              strokeWidth="3"
-            />
+            <>
+              <text
+                x={initialOffset.x + ((groupOffset.x - rightMargin) / 2)}
+                y={initialOffset.y - 10}
+                fill="black"
+                fontSize="18"
+                textAnchor="middle"
+              >
+                ПОБУДОВА ПОХІДНОГО ПОРЯДКУ
+              </text>
+              <path
+                key="blue-arrow"
+                d={`M ${initialOffset.x - 10} ${initialOffset.y}
+                    L ${groupOffset.x + rightMargin} ${initialOffset.y}
+                    L ${groupOffset.x + rightMargin} ${initialOffset.y - pointyOffset}
+                    L ${groupOffset.x + rightMargin + 20} ${(groupOffset.y + adjustedLastGroupHeight + 120) / 2}
+                    L ${groupOffset.x + rightMargin} ${groupOffset.y + adjustedLastGroupHeight + 20 + pointyOffset}
+                    L ${groupOffset.x + rightMargin} ${groupOffset.y + adjustedLastGroupHeight + 20}
+                    L ${initialOffset.x - 10} ${groupOffset.y + adjustedLastGroupHeight + 20}
+                    Z`}
+                fill="none"
+                stroke="blue"
+                strokeWidth="3"
+              />
+            </>
           );
 
           return elements;

@@ -27,18 +27,6 @@ import { calculateDepthOfConvoy, calculateExtraColumns } from "../utils/utils";
 // Fix export - if top image is not none, then its not properly exported
 // Decinmals input
 // Fix formula
-// Назва таблиці, назва маршруту, номери маршрутів
-// Додати можливість здвигати трохи вверх і стрілка синя зліва а не по центру
-
-// List of combined iamges
-
-// TextField for left and right number (bottom)
-// Bottom amplificator for bottom center text (TextField)
-// Inside top tex center
-// Top image
-// Main images
-
-// Add text above blue line
 
 // Type - default / KP
 

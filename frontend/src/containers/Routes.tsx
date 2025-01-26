@@ -19,6 +19,7 @@ import {
   DialogContent,
   DialogActions,
   Divider,
+  Checkbox,
 } from "@mui/material";
 import { useCallback, useMemo, useState } from "react";
 import {
@@ -384,6 +385,15 @@ const AmplificatorModal = ({
               <TextField {...params} label="Типи основних зображень" />
             )}
           />
+
+          <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
+            <Typography sx={{ fontSize: '14px' }}>Піднятий</Typography>
+            <Checkbox
+              checked={row.isUplifted}
+              onChange={(e) => setFieldValue(`${editPath}.isUplifted`, e.target.checked)}
+              title="Піднятий"
+            />
+          </Stack>
         </Stack>
       </DialogContent>
       <DialogActions>
@@ -489,6 +499,7 @@ const RouteRow = ({
               "topImageType",
               "mainImageTypes",
               "additionalDivision",
+              "isUplifted",
             ].includes(key)
         )
         .map(([key, value], colIndex) => (
