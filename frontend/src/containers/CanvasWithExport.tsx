@@ -19,11 +19,9 @@ interface RenderDivisionParams {
   rectBottomOffset2: number;
   groupIndex: number;
   isLastDivision: boolean;
-  index: number;
-  d: number;
+  indexStr: string;
   routes: Route[];
   skipBlackLines?: boolean;
-  outerGreyRect?: boolean;
 }
 
 const renderDivision = ({
@@ -36,11 +34,9 @@ const renderDivision = ({
   rectBottomOffset2,
   groupIndex,
   isLastDivision,
-  index,
-  d,
+  indexStr,
   routes,
   skipBlackLines,
-  outerGreyRect,
 }: RenderDivisionParams) => {
   const divisionMainImageTypes = mainImageTypes.filter((t) =>
     division.mainImageTypes?.includes(t.type)
@@ -182,7 +178,7 @@ const renderDivision = ({
   ];
 
   return (
-    <g key={`${routes[0].groupsInfo[groupIndex].name}-${index}-${d}`}>
+    <g key={`${routes[0].groupsInfo[groupIndex].name}-${indexStr}`}>
       {mainImages}
       {topImages}
       {texts}
@@ -263,22 +259,24 @@ const renderDivision = ({
           >
             {division.depthOfConvoy}
           </text>
-          <text
-            x={(() => {
-              const x = divisionX + divisionWidth + 15;
-              if (isLastDivision) {
-                return x + 23; // doesnt matter cause number is not present
-              }
+          {division.distToNextConvoy && (
+            <text
+              x={(() => {
+                const x = divisionX + divisionWidth + 15;
+                if (isLastDivision) {
+                  return x + 37; // doesnt matter cause number is not present
+                }
 
-              return x;
-            })()}
-            y={divisionY + divisionHeight + rectBottomOffset2 + 35}
-            fill="black"
-            fontSize="18"
-            textAnchor="middle"
-          >
-            {division.distToNextConvoy}
-          </text>
+                return x;
+              })()}
+              y={divisionY + divisionHeight + rectBottomOffset2 + 35}
+              fill="black"
+              fontSize="18"
+              textAnchor="middle"
+            >
+              {division.distToNextConvoy}
+            </text>
+          )}
         </>
       )}
     </g>
@@ -357,6 +355,8 @@ const CanvasWithExport = ({ routes }: { routes: Route[] }) => {
         style={{ border: "1px solid black" }}
       >
         {(() => {
+          console.log('@ ---------------------------- @');
+
           const elements = [];
 
           const initialOffset = {
@@ -373,8 +373,9 @@ const CanvasWithExport = ({ routes }: { routes: Route[] }) => {
           const groupMarginY = 100;
 
           const groupFromInitialOffsetY = 100;
+          const doesTopRouteHasAdditionalDivision = routes[0].rows.find(r => r.additionalDivision);
           const additionalDivisionsHeight =
-            Math.min(routes[0].additionalDivisions.length, 1) * divisionHeight +
+            (doesTopRouteHasAdditionalDivision ? 1 : 0) * divisionHeight +
             100;
           const groupOffset: Coordinates = {
             x: initialOffset.x,
@@ -386,41 +387,19 @@ const CanvasWithExport = ({ routes }: { routes: Route[] }) => {
 
           // groupsInfo in all routes are the same, and also synced with groups in formik
           let lastGroupHeight = 0;
-          // const groupWithMaxElements = (() => {
-          //   const 
-          //   const maxElements = Math.max(...groups.map((group) => group.rows.length));
-          //   return groups.find((group) => group.rows.length === maxElements);
-          // })();
 
-          const indexOfGroupWithMaxElements = (() => {
-            let indexOfGroupWithMaxElements = 0;
-            let maxElements = 0;
-            for (let r = 0; r < routes.length; r++) {
-              for (let gi = 0; gi < routes[r].groupsInfo.length; gi++) {
-                const divisions = routes[r].groupsInfo[gi].rows;
-
-                if (divisions.length > maxElements) {
-                  maxElements = divisions.length;
-                  indexOfGroupWithMaxElements = gi;
-                }
-              }
-            }
-
-            return indexOfGroupWithMaxElements;
-          })();
-
-          for (let gi = 0;gi < routes[0].groupsInfo.length;gi++) {
+          let firstAdditionalDivisionX = null;
+          let lastAdditionalDivisionX = null;
+          for (let gi = routes[0].groupsInfo.length - 1; gi >= 0; gi--) {
             const { allRoutesWidths, allRoutesDivisions } = (() => {
               const allRoutesWidths = [];
               const allRoutesDivisions = [];
               for (let index = 0; index < routes.length; index++) {
                 const divisions = routes[index].groupsInfo[gi].rows.map(
                   (row) => routes[index].rows[row]
-                );
-                allRoutesDivisions.push({
-                  divisions,
-                  additionalDivisions: routes[index].additionalDivisions,
-                });
+                ).reverse();
+
+                allRoutesDivisions.push({ divisions });
   
                 const groupWidth =
                   divisions.length * divisionWidth +
@@ -444,6 +423,15 @@ const CanvasWithExport = ({ routes }: { routes: Route[] }) => {
 
             const rects = [];
             for (let index = 0; index < allRoutesDivisions.length; index++) {
+              const topRoute = index === 0;
+              const additionalDivisionsOffsetY =  (() => {
+                if(topRoute) {
+                  return initialOffset.y + (groupFromInitialOffsetY / 2) + 35;
+                }
+
+                return groupOffset.y + groupHeight + 100;
+              })();
+
               const { divisions } = allRoutesDivisions[index];
 
               const offset = {
@@ -457,9 +445,8 @@ const CanvasWithExport = ({ routes }: { routes: Route[] }) => {
               // Painting group divisions
               for (let d = 0; d < divisions.length; d++) {
                 const division = divisions[d];
-                if(!division) {
-                  continue;
-                }
+
+                if(!division) continue;
 
                 const divisionX =
                   offset.x + groupMarginX + (d > 0 ? divisionWidth : 0);
@@ -478,93 +465,70 @@ const CanvasWithExport = ({ routes }: { routes: Route[] }) => {
                     rectBottomOffset2,
                     groupIndex: gi,
                     isLastDivision,
-                    index,
-                    d,
+                    indexStr: `${index}-${d}`,
                     routes,
                   })
                 );
 
-                offset.x = divisionX;
-                offset.y = divisionY;
-              }
-            }
-
-            if (gi === indexOfGroupWithMaxElements) {
-              for (let r = 0; r < routes.length; r++) {
-                const topRoute = r === 0;
-                const additionalDivisions = routes[r].additionalDivisions;
-
-                const additionalDivisionsOffset = {
-                  x: groupOffset.x + groupMarginX,
-                  y: (() => {
-                    if(topRoute) {
-                      return initialOffset.y + (groupFromInitialOffsetY / 2) + 35;
-                    }
-
-                    return groupOffset.y + groupHeight + 100;
-                  })(),
-                };
-                // Painting additional divisions
-                for (let ad = 0; ad < additionalDivisions.length; ad++) {
-                  const additionalDivision = additionalDivisions[ad];
-
-                  const divisionX = additionalDivisionsOffset.x + (ad > 0 ? (divisionWidth + groupMarginX) : 0);
-                  const divisionY = additionalDivisionsOffset.y;
-
-                  const isLastDivision = ad === additionalDivisions.length - 1;
+                if(division.additionalDivision) {
+                  firstAdditionalDivisionX = firstAdditionalDivisionX ? Math.min(firstAdditionalDivisionX, divisionX) : divisionX;
+                  lastAdditionalDivisionX = lastAdditionalDivisionX ? Math.max(lastAdditionalDivisionX, divisionX) : divisionX;
 
                   rects.push(
                     renderDivision({
-                      division: additionalDivision,
+                      division: division.additionalDivision,
                       divisionX,
-                      divisionY,
+                      divisionY: additionalDivisionsOffsetY,
                       divisionWidth,
                       divisionHeight,
                       rectBottomOffset,
                       rectBottomOffset2,
                       groupIndex: gi,
-                      isLastDivision,
-                      index: r,
-                      d: ad,
+                      isLastDivision: false,
+                      indexStr: `${index}-${d}-additional`,
                       routes,
                       skipBlackLines: true,
-                      outerGreyRect: true,
                     })
                   );
-
-                  if(ad === 0) {
-                    const groupWidth =
-                      additionalDivisions.length * divisionWidth +
-                      Math.max(additionalDivisions.length + 1, 2) * groupMarginX;
-  
-                    rects.push(
-                      <>
-                        <rect
-                          x={divisionX - 45}
-                          y={divisionY - 35}
-                          width={groupWidth}
-                          height={divisionHeight + 80}
-                          fill="none"
-                          stroke="black"
-                          strokeWidth="2.5"
-                          strokeDasharray="27,17"
-                        />
-                        <text
-                          x={divisionX - 45}
-                          y={divisionY - 55}
-                          fill="black"
-                          fontSize="18"
-                          textAnchor="start"
-                        >
-                          {routes[0].additionalDivisionsName}
-                        </text>
-                      </>
-                    );
-                  }
-
-                  additionalDivisionsOffset.x = divisionX;
-                  additionalDivisionsOffset.y = divisionY;
                 }
+
+                offset.x = divisionX;
+                offset.y = divisionY;
+              }
+
+              const doesThisRouteHasAdditionalDivision = !!routes[index].rows.find(r => r.additionalDivision);
+              if(doesThisRouteHasAdditionalDivision && gi === 0 && firstAdditionalDivisionX && lastAdditionalDivisionX) {
+                if(topRoute) {
+                  // topRoute check is so that we offset those values only once
+                  firstAdditionalDivisionX = firstAdditionalDivisionX - groupMarginX;
+                  lastAdditionalDivisionX = lastAdditionalDivisionX + groupMarginX + divisionWidth;
+                }
+
+                const groupWidth = lastAdditionalDivisionX - firstAdditionalDivisionX;
+
+                rects.push(
+                  <>
+                    <rect
+                      x={firstAdditionalDivisionX}
+                      y={additionalDivisionsOffsetY - 35}
+                      width={groupWidth}
+                      height={divisionHeight + 80}
+                      fill="none"
+                      stroke="black"
+                      strokeWidth="2.5"
+                      strokeDasharray="27,17"
+                    />
+                    <text
+                      x={firstAdditionalDivisionX}
+                      y={additionalDivisionsOffsetY - 55}
+                      fill="black"
+                      fontSize="18"
+                      textAnchor="start"
+                    >
+                      {routes[index].additionalDivisionName}
+                    </text>
+                  </>
+                );
               }
             }
 
@@ -600,7 +564,8 @@ const CanvasWithExport = ({ routes }: { routes: Route[] }) => {
 
           const rightMargin = 50;
           const pointyOffset = 10;
-          const adjustedLastGroupHeight = lastGroupHeight + (routes[routes.length - 1].additionalDivisions.length > 0 ? 225 : 0);
+          const isLastRouteHasAdditionalDivision = routes[1]?.additionalDivisionName;
+          const adjustedLastGroupHeight = lastGroupHeight + (isLastRouteHasAdditionalDivision ? 225 : 0);
           elements.push(
             <path
               key="blue-arrow"

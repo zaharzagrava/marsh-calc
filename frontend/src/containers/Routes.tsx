@@ -18,6 +18,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Divider,
 } from "@mui/material";
 import { useCallback, useMemo, useState } from "react";
 import {
@@ -30,6 +31,7 @@ import {
   mainImageTypes,
   MainImageType,
   DivisionGraphInfo,
+  defaultElemGraphInfo,
 } from "../types/types";
 import { DateTime } from "luxon";
 import { AdapterLuxon } from "@mui/x-date-pickers/AdapterLuxon";
@@ -49,8 +51,8 @@ interface RoutesProps {
 }
 
 const Routes = ({ route, routeIndex, setFieldValue }: RoutesProps) => {
-  const [selectedRowIndex, setSelectedRowIndex] = useState<number | null>(null);
-  const [selectedAdditionalDivisionIndex, setSelectedAdditionalDivisionIndex] = useState<number | null>(null);
+  const [selectedRowIndex, setSelectedRowIndex] = useState<{index: number, isAdditionalDivision: boolean} | null>(null);
+
   const handleAddRow = useCallback(() => {
     const newRow = { ...defaultElem };
 
@@ -67,16 +69,15 @@ const Routes = ({ route, routeIndex, setFieldValue }: RoutesProps) => {
   }, [route, routeIndex, setFieldValue]);
 
   const handleModalOpen = useCallback(
-    (rowIndex: number) => {
-      setSelectedRowIndex(rowIndex);
+    (rowIndex: number, isAdditionalDivision: boolean) => {
+      setSelectedRowIndex({index: rowIndex, isAdditionalDivision});
     },
     [setSelectedRowIndex]
   );
 
   const handleModalClose = useCallback(() => {
     setSelectedRowIndex(null);
-    setSelectedAdditionalDivisionIndex(null);
-  }, [setSelectedRowIndex, setSelectedAdditionalDivisionIndex]);
+  }, [setSelectedRowIndex]);
 
   return (
     <Card sx={{ p: 1 }}>
@@ -149,7 +150,7 @@ const Routes = ({ route, routeIndex, setFieldValue }: RoutesProps) => {
             />
           </LocalizationProvider>
           <TextField
-            label="Загальний час зупинки (год.)"
+            label="Загальний час привалів (год.)"
             value={route.routeData.totalTimeOfStops}
             sx={{ "& .MuiInputBase-input": { padding: "5px" } }}
             onChange={(e) => {
@@ -201,98 +202,36 @@ const Routes = ({ route, routeIndex, setFieldValue }: RoutesProps) => {
         </Stack>
       </Box>
 
-      <AdditionalDivisions
-        route={route}
-        routeIndex={routeIndex}
-        setSelectedAdditionalDivisionIndex={setSelectedAdditionalDivisionIndex}
-        setFieldValue={setFieldValue}
-      />
+      <Box sx={{ mt: 2, mb: 2 }}>
+        <Typography variant="h5">Додатковий підрозділ</Typography>
+        <Stack spacing={2}>
+          <TextField
+            label="Назва підрозділу"
+            value={route.additionalDivisionName}
+            onChange={(e) => {
+              setFieldValue(`routes[${routeIndex}].additionalDivisionName`, e.target.value);
+            }}
+          />
+        </Stack>
+      </Box>
 
-      {(selectedRowIndex !== null || selectedAdditionalDivisionIndex !== null) && (
+      {(selectedRowIndex !== null) && (
         <AmplificatorModal
-          index={selectedRowIndex ?? selectedAdditionalDivisionIndex}
-          isAdditionalDivision={selectedAdditionalDivisionIndex !== null}
+          index={selectedRowIndex.index}
+          isAdditionalDivision={selectedRowIndex.isAdditionalDivision}
           handleModalClose={handleModalClose}
           row={(() => {
-            if(selectedRowIndex !== null) {
-              return route.rows[selectedRowIndex];
+            if(selectedRowIndex.isAdditionalDivision) {
+              return route.rows[selectedRowIndex.index].additionalDivision as DivisionGraphInfo;
             }
 
-            if(selectedAdditionalDivisionIndex !== null) {
-              return route.additionalDivisions[selectedAdditionalDivisionIndex];
-            }
-
-            return route.rows[0]; // should never happen
+            return route.rows[selectedRowIndex.index] as DivisionGraphInfo;
           })()}
           routeIndex={routeIndex}
           setFieldValue={setFieldValue}
         />
       )}
     </Card>
-  );
-};
-
-interface AdditionalDivisionsProps {
-  route: Route;
-  routeIndex: number;
-  setSelectedAdditionalDivisionIndex: (index: number) => void;
-  setFieldValue: (field: string, value: any) => void;
-}
-
-const AdditionalDivisions: React.FC<AdditionalDivisionsProps> = ({
-  route,
-  routeIndex,
-  setSelectedAdditionalDivisionIndex,
-  setFieldValue,
-}) => {
-  return (
-    <Box sx={{ mt: 2, mb: 2 }}>
-      <Typography variant="h5">Додатковий підрозділ</Typography>
-      <Stack spacing={2}>
-        <TextField
-          label="Назва підрозділу"
-          value={route.additionalDivisionsName}
-          onChange={(e) => {
-            setFieldValue(`routes[${routeIndex}].additionalDivisionsName`, e.target.value);
-          }}
-        />
-        {route.additionalDivisions.map((division, index) => (
-          <Stack key={index} direction="row" spacing={2} alignItems="center">
-            <Button
-              variant="contained"
-              onClick={() => {
-                setSelectedAdditionalDivisionIndex(index);
-              }}
-            >
-              Редагувати деталі
-            </Button>
-            <IconButton
-              onClick={() => {
-                const newDivisions = [...route.additionalDivisions];
-                newDivisions.splice(index, 1);
-                setFieldValue(`routes[${routeIndex}].additionalDivisions`, newDivisions);
-              }}
-            >
-              <DeleteIcon />
-            </IconButton>
-          </Stack>
-        ))}
-        <Button
-          variant="outlined"
-          sx={{ width: "200px" }}
-          onClick={() => {
-            const newDivisions = [...route.additionalDivisions, {
-              mainImageTypes: [MainImageType.Empty]
-            }];
-            setFieldValue(`routes[${routeIndex}].additionalDivisions`, newDivisions);
-          }}
-          startIcon={<AddIcon />}
-        >
-          Додати підрозділ
-        </Button>
-
-      </Stack>
-    </Box>
   );
 };
 
@@ -314,11 +253,16 @@ const AmplificatorModal = ({
   setFieldValue,
 }: AmplificatorModalProps) => {
   const editPath = useMemo(() => {
-    return `routes[${routeIndex}].${isAdditionalDivision ? "additionalDivisions" : "rows"}[${index}]`;
+    if(isAdditionalDivision) {
+      return `routes[${routeIndex}].rows[${index}].additionalDivision`;
+    }
+
+    return `routes[${routeIndex}].rows[${index}]`;
   }, [isAdditionalDivision, index, routeIndex]);
 
   const editValue = useCallback((key: string, e: React.ChangeEvent<HTMLInputElement>) => {
-    setFieldValue(`${editPath}.${key}`, e.target.value);
+    const fullKey = `${editPath}.${key}`;
+    setFieldValue(fullKey, e.target.value);
   }, [editPath, setFieldValue]);
 
   return (
@@ -458,7 +402,7 @@ interface RouteRowProps {
   routeIndex: number;
   onRowChange: (newRows: RowData[]) => void;
   onDeleteRow: (rowIndex: number) => void;
-  onModalOpen: (rowIndex: number) => void;
+  onModalOpen: (rowIndex: number, isAdditionalDivision: boolean) => void;
 }
 
 const RouteRow = ({
@@ -487,6 +431,24 @@ const RouteRow = ({
     },
     [rowIndex, route.rows, onRowChange]
   );
+
+  const onAdditionalDivisionAdd = useCallback(() => {
+    const newRows = [...route.rows];
+    newRows[rowIndex] = {
+      ...newRows[rowIndex],
+      additionalDivision: { ...defaultElemGraphInfo },
+    };
+    onRowChange(newRows);
+  }, [rowIndex, route.rows, onRowChange]);
+  
+  const onAdditionalDivisionDelete = useCallback(() => {
+    const newRows = [...route.rows];
+    newRows[rowIndex] = {
+      ...newRows[rowIndex],
+      additionalDivision: undefined,
+    };
+    onRowChange(newRows);
+  }, [rowIndex, route.rows, onRowChange]);
 
   const isDeleteDisabled = useCallback(() => {
     const group = route.groupsInfo.find((group) =>
@@ -526,6 +488,7 @@ const RouteRow = ({
               "centerAmplificator",
               "topImageType",
               "mainImageTypes",
+              "additionalDivision",
             ].includes(key)
         )
         .map(([key, value], colIndex) => (
@@ -564,6 +527,7 @@ const RouteRow = ({
                   <TextField
                     fullWidth
                     value={value}
+                    disabled={key === "distToNextConvoy" && rowIndex === 0}
                     sx={{
                       "& .MuiInputBase-input": {
                         padding: "3px",
@@ -580,8 +544,8 @@ const RouteRow = ({
         ))}
       <TableCell sx={{ margin: 0, padding: 0 }}>
         <Stack direction="row">
-          <IconButton onClick={() => onModalOpen(rowIndex)}>
-            <EditIcon />
+          <IconButton onClick={() => onModalOpen(rowIndex, false)}>
+            <EditIcon sx={{ transform: 'scale(1.2)' }} />
           </IconButton>
           <IconButton
             disabled={isDeleteDisabled()}
@@ -589,6 +553,21 @@ const RouteRow = ({
           >
             <DeleteIcon />
           </IconButton>
+          <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+          {row.additionalDivision ? (
+            <>
+              <IconButton onClick={() => onModalOpen(rowIndex, true)}>
+                <EditIcon />
+              </IconButton>
+              <IconButton onClick={onAdditionalDivisionDelete}>
+                <DeleteIcon />
+              </IconButton>
+            </>
+          ) : (
+            <IconButton onClick={onAdditionalDivisionAdd}>
+              <AddIcon />
+            </IconButton>
+          )}
         </Stack>
       </TableCell>
     </TableRow>

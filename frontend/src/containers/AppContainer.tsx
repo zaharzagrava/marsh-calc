@@ -23,7 +23,12 @@ import { calculateDepthOfConvoy, calculateExtraColumns } from "../utils/utils";
 // https://commons.wikimedia.org/wiki/File:Military_Symbol_-_Friendly_Unit_(Bichrome_1.6x1_Frame)-_Infantry_-_Mechanized_(NATO_APP-6_Alternate).svg
 // https://commons.wikimedia.org/wiki/Category:Military_map_symbols_for_units_and_formations
 
+// Save content to JSON
 // Fix export - if top image is not none, then its not properly exported
+// Decinmals input
+// Fix formula
+// Назва таблиці, назва маршруту, номери маршрутів
+// Додати можливість здвигати трохи вверх і стрілка синя зліва а не по центру
 
 // List of combined iamges
 
@@ -52,7 +57,7 @@ export const columnNames = {
   timeToPassPointOfDeparture_convoyStart:
     "Час проходження вихідного пункту (Голова колонни) (год. хв.)",
   timeToPassPointOfDeparture_convoyEnd:
-    "Час проходження кінцевого пункту (Хвіст колонни)(год. хв.)",
+    "Час проходження вихідного пункту (Хвіст колонни)(год. хв.)",
   timeOfStartOfMovement: "Час початку руху Висування (год. хв.)",
   timeOfEndOfMovement:
     "Директивний час зосередження підрозділів у районі призначення Tзос. (год. хв.)",
@@ -62,7 +67,7 @@ const AppContainer = () => {
   const defaultGroups = useMemo(() => {
     return [
       { name: "Похідна охорона" },
-      { name: "Підрозділи ТхЗ, ТлЗ та МедЗ" },
+      { name: "Підрозділи ТхЗ, ТлЗ" },
     ];
   }, []);
 
@@ -99,8 +104,7 @@ const AppContainer = () => {
               rows: [2],
             },
           ],
-          additionalDivisions: [],
-          additionalDivisionsName: "",
+          additionalDivisionName: "",
         },
       ],
       groups: defaultGroups,

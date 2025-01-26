@@ -50,22 +50,7 @@ export enum MainImageType {
   Triangle = "triangle",
 }
 
-export const defaultElem: RowData = {
-  unitName: "",
-  numOfVehicles: 10,
-  numOfConvoys: 1,
-  distBetweenVehicles: 4000,
-  distToNextConvoy: 100,
-  distBetweenConvoyHeadAndInitialPointOfDeparture: 7,
-  speedOfExtraction: 15,
-  speed: 25,
-
-  depthOfConvoy: 0,
-  timeToPassPointOfDeparture_convoyStart: DateTime.now(),
-  timeToPassPointOfDeparture_convoyEnd: DateTime.now(),
-  timeOfStartOfMovement: DateTime.now(),
-  timeOfEndOfMovement: DateTime.now(),
-
+export const defaultElemGraphInfo: DivisionGraphInfo = {
   leftBottomAmplificator: "1",
   rightBottomAmplificator: "2",
   centerBottomAmplificator: "3",
@@ -80,6 +65,25 @@ export const defaultElem: RowData = {
 
   topImageType: TopImageType.None,
   mainImageTypes: [MainImageType.Empty],
+};
+
+export const defaultElem: RowData = {
+  ...defaultElemGraphInfo,
+
+  unitName: "",
+  numOfVehicles: 10,
+  numOfConvoys: 1,
+  distBetweenVehicles: 4000,
+  distToNextConvoy: 0,
+  distBetweenConvoyHeadAndInitialPointOfDeparture: 7,
+  speedOfExtraction: 15,
+  speed: 25,
+
+  depthOfConvoy: 0,
+  timeToPassPointOfDeparture_convoyStart: DateTime.now(),
+  timeToPassPointOfDeparture_convoyEnd: DateTime.now(),
+  timeOfStartOfMovement: DateTime.now(),
+  timeOfEndOfMovement: DateTime.now(),
 };
 
 export const topImageTypes = [
@@ -150,6 +154,8 @@ export interface RowData extends DivisionGraphInfo {
 
   timeOfStartOfMovement: DateTime;
   timeOfEndOfMovement: DateTime;
+
+  additionalDivision?: DivisionGraphInfo;
 }
 
 export interface RouteData {
@@ -164,8 +170,7 @@ export interface Route {
   rows: RowData[];
   routeData: RouteData;
   groupsInfo: GroupInfo[];
-  additionalDivisions: DivisionGraphInfo[];
-  additionalDivisionsName: string;
+  additionalDivisionName?: string;
 }
 
 export interface GroupInfo {

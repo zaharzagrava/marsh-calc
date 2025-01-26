@@ -1,6 +1,6 @@
 import './App.css'
 import { Provider } from 'react-redux'
-import { BrowserRouter, Route, RouterProvider, Routes } from 'react-router-dom'
+import { BrowserRouter, RouterProvider } from 'react-router-dom'
 import { store } from './store'
 import { router } from './router'
 import { CssBaseline } from '@mui/material'
