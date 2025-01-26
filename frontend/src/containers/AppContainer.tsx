@@ -12,13 +12,14 @@ import {
   TableCell,
   TableBody,
   DialogActions,
+  Stack,
 } from "@mui/material";
 import { AdapterLuxon } from "@mui/x-date-pickers/AdapterLuxon";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 
 import { Grid } from "@mui/material";
 import { DateTime } from "luxon";
-import { defaultElem, Group, Route } from "../types/types";
+import { defaultElem, defaultGroups, defaultRouteDataEx1, Group, Route } from "../types/types";
 import CanvasWithExport from "./CanvasWithExport";
 import GroupsEditor from "./GroupsEditor";
 import Routes from "./Routes";
@@ -44,9 +45,8 @@ import html2canvas from "html2canvas";
 export const columnNames = {
   unitName: "Назва підрозділу",
   numOfVehicles: "Кількість транспортних засобів",
-  numOfConvoys: "Кількість колон підрозділу",
-  distBetweenVehicles: "Відстань між транспортними засобами (м.)",
-  distToNextConvoy: "Відстань між колонами (м.)",
+  distBetweenVehicles: "Відстань між транспортними засобами (км.)",
+  distToNextConvoy: "Відстань між колонами (км.)",
   distBetweenConvoyHeadAndInitialPointOfDeparture:
     "Відстань колон від вихідного пункту (Двід, км)",
   speedOfExtraction: "Швидкість витягування (V - витяг) (км. / год.)",
@@ -64,10 +64,6 @@ export const columnNames = {
 
 const AppContainer = () => {
   const [previewOpen, setPreviewOpen] = useState(false);
-
-  const defaultGroups = useMemo(() => {
-    return [{ name: "Похідна охорона" }, { name: "Підрозділи ТхЗ, ТлЗ" }];
-  }, []);
 
   const handleExportTable = useCallback(() => {
     const table = document.querySelector("#preview-table");
@@ -88,40 +84,7 @@ const AppContainer = () => {
     routes: Route[];
     groups: Group[];
   }>({
-    initialValues: {
-      routes: [
-        {
-          rows: [{ ...defaultElem }, { ...defaultElem }, { ...defaultElem }],
-          routeData: {
-            directiveTimeOfEndOfMovement: DateTime.now().set({
-              day: 24,
-              month: 10,
-              year: 2024,
-              hour: 6,
-              minute: 0,
-              second: 0,
-              millisecond: 0,
-            }),
-            depthOfDestinationArea: 17,
-            totalTimeOfStops: 2,
-            lengthOfRoute: 250,
-            depthOfFullConvoy: 0,
-          },
-          groupsInfo: [
-            {
-              name: defaultGroups[0].name,
-              rows: [0, 1],
-            },
-            {
-              name: defaultGroups[1].name,
-              rows: [2],
-            },
-          ],
-          additionalDivisionName: "",
-        },
-      ],
-      groups: defaultGroups,
-    },
+    initialValues: defaultRouteDataEx1,
     onSubmit: (values) => {
       console.log(values);
     },
@@ -129,24 +92,78 @@ const AppContainer = () => {
 
   const processedRoutes = useMemo(() => {
     return formik.values.routes.map((route) => {
+      const depthOfFullConvoy = route.rows.reduce(
+        (acc, row) => {
+          const depthOfConvoy = calculateDepthOfConvoy(
+            row.numOfVehicles,
+            row.distBetweenVehicles,
+          );
+
+          return Number((acc + depthOfConvoy + row.distToNextConvoy).toFixed(5));
+        },
+        0
+      );
+
       return {
         ...route,
-        rows: route.rows.map((row) =>
-          calculateExtraColumns(row, route.routeData)
-        ),
-        depthOfFullConvoy: route.rows.reduce(
-          (acc, row) =>
-            acc +
-            calculateDepthOfConvoy(
-              row.numOfVehicles,
-              row.distBetweenVehicles,
-              row.distToNextConvoy
-            ),
-          0
-        ),
+        rows: calculateExtraColumns(route.rows, {
+          ...route.routeData,
+          depthOfFullConvoy,
+        }),
+        depthOfFullConvoy,
       };
     });
   }, [formik.values.routes]);
+
+  console.log('@processedRoutes');
+  console.log(processedRoutes);
+
+  const handleSaveToJson = useCallback(() => {
+    const dataStr = JSON.stringify(formik.values, (key, value) => {
+      // Special handling for DateTime objects
+      if (value instanceof DateTime) {
+        return value.toISO();
+      }
+      return value;
+    }, 2);
+    
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.download = 'formData.json';
+    link.href = url;
+    link.click();
+    URL.revokeObjectURL(url);
+  }, [formik.values]);
+
+  const handleLoadFromJson = useCallback(() => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = JSON.parse(e.target?.result as string, (key, value) => {
+            // Convert ISO strings back to DateTime objects for specific fields
+            if (typeof value === 'string' && value.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/)) {
+              return DateTime.fromISO(value);
+            }
+            return value;
+          });
+          formik.setValues(data);
+        } catch (error) {
+          console.error('Error parsing JSON:', error);
+          alert('Error loading file. Please ensure it is a valid JSON file.');
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }, [formik]);
 
   return (
     <LocalizationProvider dateAdapter={AdapterLuxon}>
@@ -198,6 +215,16 @@ const AppContainer = () => {
           <Button variant="contained" onClick={() => setPreviewOpen(true)}>
             Попередній перегляд та експорт
           </Button>
+        </Grid>
+        <Grid item>
+          <Stack direction="row" spacing={2}>
+            <Button variant="contained" onClick={handleSaveToJson}>
+              Зберегти у JSON
+            </Button>
+            <Button variant="contained" onClick={handleLoadFromJson}>
+              Завантажити з JSON
+            </Button>
+          </Stack>
         </Grid>
         <Grid item>
           <CanvasWithExport routes={processedRoutes} />

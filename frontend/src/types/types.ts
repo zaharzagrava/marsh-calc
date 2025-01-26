@@ -73,8 +73,7 @@ export const defaultElem: RowData = {
 
   unitName: "",
   numOfVehicles: 10,
-  numOfConvoys: 1,
-  distBetweenVehicles: 4000,
+  distBetweenVehicles: 0.05,
   distToNextConvoy: 0,
   distBetweenConvoyHeadAndInitialPointOfDeparture: 7,
   speedOfExtraction: 15,
@@ -144,7 +143,6 @@ export interface DivisionGraphInfo {
 export interface RowData extends DivisionGraphInfo {
   unitName: string;
   numOfVehicles: number;
-  numOfConvoys: number;
   distBetweenVehicles: number;
   distToNextConvoy: number;
   distBetweenConvoyHeadAndInitialPointOfDeparture: number;
@@ -190,3 +188,97 @@ export interface Coordinates {
   x: number;
   y: number;
 }
+
+export const defaultGroups = [
+  { name: "Похідна охорона" },
+  { name: "Підрозділи ТхЗ, ТлЗ" },
+];
+
+export const defaultRouteDataEx1: {
+  routes: Route[];
+  groups: Group[];
+} = {
+  routes: [
+    {
+      rows: [
+        { ...defaultElem,
+          numOfVehicles: 25,
+          distToNextConvoy: 0,
+          distBetweenConvoyHeadAndInitialPointOfDeparture: 7,
+        },
+        { ...defaultElem,
+          numOfVehicles: 61,
+          distToNextConvoy: 5,
+          distBetweenConvoyHeadAndInitialPointOfDeparture: 7.5,
+        },
+        { ...defaultElem,
+          numOfVehicles: 39,
+          distToNextConvoy: 2,
+          distBetweenConvoyHeadAndInitialPointOfDeparture: 8,
+        },
+        { ...defaultElem,
+          numOfVehicles: 122,
+          distToNextConvoy: 2,
+          distBetweenConvoyHeadAndInitialPointOfDeparture: 8.5,
+        },
+        { ...defaultElem,
+          numOfVehicles: 37,
+          distToNextConvoy: 2,
+          distBetweenConvoyHeadAndInitialPointOfDeparture: 8,
+        },
+        { ...defaultElem,
+          numOfVehicles: 37,
+          distToNextConvoy: 2,
+          distBetweenConvoyHeadAndInitialPointOfDeparture: 7,
+        },
+        { ...defaultElem,
+          numOfVehicles: 25,
+          distToNextConvoy: 2,
+          distBetweenConvoyHeadAndInitialPointOfDeparture: 7.5,
+        },
+        { ...defaultElem,
+          numOfVehicles: 45,
+          distToNextConvoy: 1,
+          distBetweenConvoyHeadAndInitialPointOfDeparture: 8,
+        },
+        { ...defaultElem,
+          numOfVehicles: 7,
+          distToNextConvoy: 1,
+          distBetweenConvoyHeadAndInitialPointOfDeparture: 8.5,
+        },
+        { ...defaultElem,
+          numOfVehicles: 32,
+          distToNextConvoy: 2,
+          distBetweenConvoyHeadAndInitialPointOfDeparture: 8,
+        },
+      ],
+      routeData: {
+        directiveTimeOfEndOfMovement: DateTime.now().set({
+          day: 24,
+          month: 10,
+          year: 2024,
+          hour: 6,
+          minute: 0,
+          second: 0,
+          millisecond: 0,
+        }),
+        depthOfDestinationArea: 17,
+        totalTimeOfStops: 2,
+        lengthOfRoute: 250,
+        depthOfFullConvoy: 0,
+      },
+      groupsInfo: [
+        {
+          name: defaultGroups[0].name,
+          rows: [0, 1, 2],
+        },
+        {
+          name: defaultGroups[1].name,
+          rows: [3, 4, 5, 6, 7, 8, 9],
+        },
+      ],
+      additionalDivisionName: "",
+    },
+  ],
+  groups: defaultGroups,
+};
