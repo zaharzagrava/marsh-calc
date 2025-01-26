@@ -19,7 +19,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 
 import { Grid } from "@mui/material";
 import { DateTime } from "luxon";
-import { defaultElem, defaultGroups, defaultRouteDataEx1, Group, Route } from "../types/types";
+import { defaultElem, defaultGroups, defaultRouteDataEx1, defaultRouteDataEx2, Group, Route } from "../types/types";
 import CanvasWithExport from "./CanvasWithExport";
 import GroupsEditor from "./GroupsEditor";
 import Routes from "./Routes";
@@ -84,7 +84,7 @@ const AppContainer = () => {
     routes: Route[];
     groups: Group[];
   }>({
-    initialValues: defaultRouteDataEx1,
+    initialValues: defaultRouteDataEx2,
     onSubmit: (values) => {
       console.log(values);
     },
@@ -114,9 +114,6 @@ const AppContainer = () => {
       };
     });
   }, [formik.values.routes]);
-
-  console.log('@processedRoutes');
-  console.log(processedRoutes);
 
   const handleSaveToJson = useCallback(() => {
     const dataStr = JSON.stringify(formik.values, (key, value) => {
