@@ -25,34 +25,32 @@ export const calculateExtraColumns = (rows: RowData[], routeData: RouteData): Ro
       );
 
       if (routeData.depthOfFullConvoy > routeData.depthOfDestinationArea) {
+        // Time to extract into destination from first division end to convoy end
         timeToExtractIntoDestination =
-          (routeData.depthOfFullConvoy - routeData.depthOfDestinationArea) /
+          (routeData.depthOfFullConvoy - routeData.depthOfDestinationArea - depthOfConvoy) /
           row.speedOfExtraction;
       }
 
-      console.log('@timeToExtractIntoDestination');
-      console.log(timeToExtractIntoDestination);
+      // Time when end of convoy enters destination area
+      const timeOfEndOfMovement = routeData.directiveTimeOfEndOfMovement.minus({
+        hours: timeToExtractIntoDestination,
+      });
 
       totalTimeToPassRoute =
         (routeData.lengthOfRoute / row.speed) + routeData.totalTimeOfStops;
-      const totalTimeToGetToDest = totalTimeToPassRoute + timeToExtractIntoDestination;
+
+      const timeToPassPointOfDeparture_convoyEnd =
+        timeOfEndOfMovement.minus({
+          hours: totalTimeToPassRoute,
+        });
 
       const timeToPassPointOfDeparture_convoyStart =
-        routeData.directiveTimeOfEndOfMovement.minus({ hours: totalTimeToGetToDest });
-      const timeToPassPointOfDeparture_convoyEnd =
-        timeToPassPointOfDeparture_convoyStart.plus({
-          hours: depthOfConvoy / row.speed,
-        });
+      timeToPassPointOfDeparture_convoyEnd.minus({ hours: depthOfConvoy / row.speed });
 
       const timeOfStartOfMovement = timeToPassPointOfDeparture_convoyStart.minus({
         hours:
           row.distBetweenConvoyHeadAndInitialPointOfDeparture /
           row.speedOfExtraction,
-      });
-
-      // Time when end of convoy enters destination area
-      const timeOfEndOfMovement = timeToPassPointOfDeparture_convoyEnd.plus({
-        hours: totalTimeToPassRoute,
       });
 
       result.push({
@@ -71,16 +69,11 @@ export const calculateExtraColumns = (rows: RowData[], routeData: RouteData): Ro
 
       if(!firstRow || totalTimeToPassRoute === 0) throw new Error('Prev row is not defined');
 
-      console.log('@prevRow.timeOfEndOfMovement');
-      console.log(row.distToNextConvoy + depthOfConvoy);
-
       const dist = row.distToNextConvoy + depthOfConvoy;
       sumDist.push(dist);
       sumTime.push(dist / row.speedOfExtraction);
 
       const timeToAdd = timeToExtractIntoDestination * (r / (rows.length - 1))
-      console.log('@timeToAdd');
-      console.log(firstRow.timeOfEndOfMovement, timeToAdd);
       const timeOfEndOfMovement = firstRow.timeOfEndOfMovement.plus({
         hours: timeToAdd,
       });
@@ -107,12 +100,6 @@ export const calculateExtraColumns = (rows: RowData[], routeData: RouteData): Ro
       });
     }
   }
-
-  console.log('@sumDist');
-  console.log(sumDist);
-
-  console.log('@sumTime');
-  console.log(sumTime.reduce((a, b) => a + b, 0));
 
   return result;
 }
