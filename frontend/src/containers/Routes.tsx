@@ -93,6 +93,33 @@ const Routes = ({ route, routeIndex, setFieldValue }: RoutesProps) => {
     setSelectedRowIndex(null);
   }, [setSelectedRowIndex]);
 
+  const processedColumnsNames = useMemo(() => {
+    const processedColumnsNames: string[] = Object.entries(columnNames).reduce(
+      (acc, [key, columnName]) => {
+        if (key === "timeOfEndOfMovement") {
+          for (let i = 0; i < (route.routeData.stops || []).length; i++) {
+            acc.push(`РР ${i + 1} (Голова колонни) (год. хв.)`);
+            acc.push(`РР ${i + 1} (Хвіст колонни) (год. хв.)`);
+          }
+
+          acc.push(columnName);
+
+          return acc;
+        }
+
+        if (routeIndex !== 0 && key === "topAdditionalDivision") {
+          return acc;
+        }
+
+        acc.push(columnName);
+        return acc;
+      },
+      [] as string[]
+    );
+
+    return processedColumnsNames;
+  }, [routeIndex, route.routeData.stops]);
+
   return (
     <Card sx={{ p: 1 }}>
       <Typography variant="h5">Таблиця маршруту</Typography>
@@ -100,12 +127,10 @@ const Routes = ({ route, routeIndex, setFieldValue }: RoutesProps) => {
         <Table>
           <TableHead>
             <TableRow>
-              {Object.entries(columnNames).map(([key, columnName]) => {
-                if(routeIndex !== 0 && key === "topAdditionalDivision") {
-                  return <></>
-                }
-
-                return <TableCell key={key}>{columnName}</TableCell>
+              {processedColumnsNames.map((columnName) => {
+                return (
+                  <TableCell key={`${columnName}-key`}>{columnName}</TableCell>
+                );
               })}
             </TableRow>
           </TableHead>
@@ -168,18 +193,6 @@ const Routes = ({ route, routeIndex, setFieldValue }: RoutesProps) => {
             />
           </LocalizationProvider>
           <TextField
-            label="Загальний час привалів (год.)"
-            value={route.routeData.totalTimeOfStops}
-            type="number"
-            sx={{ "& .MuiInputBase-input": { padding: "5px" } }}
-            onChange={(e) => {
-              setFieldValue(
-                `routes[${routeIndex}].routeData.totalTimeOfStops`,
-                Number(e.target.value)
-              );
-            }}
-          />
-          <TextField
             label="Довжина маршруту (км.)"
             value={route.routeData.lengthOfRoute}
             type="number"
@@ -204,6 +217,65 @@ const Routes = ({ route, routeIndex, setFieldValue }: RoutesProps) => {
             }}
           />
         </Stack>
+        <Box>
+          <Typography>Привали та пункти регулювання</Typography>
+          {route.routeData.stops?.map((stop, stopIndex) => (
+            <Box key={stopIndex} sx={{ display: "flex", gap: 1, mb: 1 }}>
+              <TextField
+                label="Тривалість привалу (год.)"
+                value={stop.duration}
+                type="number"
+                sx={{ "& .MuiInputBase-input": { padding: "5px" } }}
+                onChange={(e) => {
+                  setFieldValue(
+                    `routes[${routeIndex}].routeData.stops[${stopIndex}].duration`,
+                    Number(e.target.value)
+                  );
+                }}
+              />
+              <TextField
+                label="Відстань до РР (км.)"
+                value={stop.distance}
+                type="number"
+                sx={{ "& .MuiInputBase-input": { padding: "5px" } }}
+                onChange={(e) => {
+                  setFieldValue(
+                    `routes[${routeIndex}].routeData.stops[${stopIndex}].distance`,
+                    Number(e.target.value)
+                  );
+                }}
+              />
+              <IconButton
+                onClick={() => {
+                  const newStops = [...route.routeData.stops];
+                  newStops.splice(stopIndex, 1);
+                  setFieldValue(
+                    `routes[${routeIndex}].routeData.stops`,
+                    newStops
+                  );
+                }}
+              >
+                <DeleteIcon />
+              </IconButton>
+            </Box>
+          ))}
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => {
+              const prevStop =
+                route.routeData.stops?.[route.routeData.stops.length - 1];
+              const newStop = {
+                duration: 0,
+                distance: prevStop?.distance + 1 || 10,
+              };
+              const newStops = [...(route.routeData.stops || []), newStop];
+              setFieldValue(`routes[${routeIndex}].routeData.stops`, newStops);
+            }}
+          >
+            Додати привал
+          </Button>
+        </Box>
       </Box>
 
       <Box sx={{ mt: 2, mb: 2 }}>
@@ -222,12 +294,14 @@ const Routes = ({ route, routeIndex, setFieldValue }: RoutesProps) => {
           ))}
         </Stack>
       </Box>
-  
+
       {selectedRowIndex !== null && (
         <AmplificatorModal
           index={selectedRowIndex.index}
           isTopAdditionalDivision={selectedRowIndex.isTopAdditionalDivision}
-          isBottomAdditionalDivision={selectedRowIndex.isBottomAdditionalDivision}
+          isBottomAdditionalDivision={
+            selectedRowIndex.isBottomAdditionalDivision
+          }
           handleModalClose={handleModalClose}
           row={(() => {
             if (selectedRowIndex.isTopAdditionalDivision) {
@@ -426,13 +500,13 @@ const AmplificatorModal = ({
           />
 
           <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
-            <Typography sx={{ fontSize: "14px" }}>Піднятий</Typography>
+            <Typography sx={{ fontSize: "14px" }}>Встановити КП</Typography>
             <Checkbox
               checked={row.isUplifted}
               onChange={(e) =>
                 setFieldValue(`${editPath}.isUplifted`, e.target.checked)
               }
-              title="Піднятий"
+              title="Встановити КП"
             />
           </Stack>
         </Stack>
@@ -542,7 +616,8 @@ const RouteRow = ({
         "timeToPassPointOfDeparture_convoyEnd",
         "timeOfStartOfMovement",
         "timeOfEndOfMovement",
-      ].includes(key)
+      ].includes(key) ||
+      key === "stopsData"
     ) {
       return (value as DateTime).toFormat("HH год. mm хв. dd.MM.yyyy");
     }
@@ -570,6 +645,9 @@ const RouteRow = ({
 
               "topAdditionalDivision",
               "bottomAdditionalDivision",
+              "stopsData",
+
+              "timeOfEndOfMovement",
             ].includes(key)
         )
         .map(([key, value], colIndex) => (
@@ -595,7 +673,6 @@ const RouteRow = ({
                   "timeToPassPointOfDeparture_convoyStart",
                   "timeToPassPointOfDeparture_convoyEnd",
                   "timeOfStartOfMovement",
-                  "timeOfEndOfMovement",
                 ].includes(key)
               ) {
                 return (
@@ -624,9 +701,46 @@ const RouteRow = ({
             })()}
           </TableCell>
         ))}
+
+      {row.stopsData.map((stopData, colIndex) => (
+        <TableCell
+          key={`${rowIndex}-${colIndex}`}
+          sx={{
+            margin: 0,
+            paddingY: 0,
+            paddingX: "3px",
+            width: "auto",
+          }}
+        >
+          <Typography sx={{ padding: "3px" }}>
+            {getRowValue("stopsData", stopData)}
+          </Typography>
+        </TableCell>
+      ))}
+      <TableCell
+        key={`${rowIndex}-timeOfEndOfMovement`}
+        sx={{
+          margin: 0,
+          paddingY: 0,
+          paddingX: "3px",
+          width: "auto",
+        }}
+      >
+        <Typography sx={{ padding: "3px" }}>
+          {getRowValue("timeOfEndOfMovement", row.timeOfEndOfMovement)}
+        </Typography>
+      </TableCell>
       <TableCell sx={{ margin: 0, padding: 0 }}>
         <Stack direction="row">
-          <IconButton onClick={() => onModalOpen({rowIndex, isTopAdditionalDivision: false, isBottomAdditionalDivision: false})}>
+          <IconButton
+            onClick={() =>
+              onModalOpen({
+                rowIndex,
+                isTopAdditionalDivision: false,
+                isBottomAdditionalDivision: false,
+              })
+            }
+          >
             <EditIcon sx={{ transform: "scale(1.2)" }} />
           </IconButton>
           <IconButton
@@ -642,7 +756,15 @@ const RouteRow = ({
           <Stack direction="row">
             {row.topAdditionalDivision ? (
               <>
-                <IconButton onClick={() => onModalOpen({rowIndex, isTopAdditionalDivision: true, isBottomAdditionalDivision: false})}>
+                <IconButton
+                  onClick={() =>
+                    onModalOpen({
+                      rowIndex,
+                      isTopAdditionalDivision: true,
+                      isBottomAdditionalDivision: false,
+                    })
+                  }
+                >
                   <EditIcon />
                 </IconButton>
                 <IconButton onClick={onTopAdditionalDivisionDelete}>
@@ -657,7 +779,15 @@ const RouteRow = ({
             <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
             {row.bottomAdditionalDivision ? (
               <>
-                <IconButton onClick={() => onModalOpen({rowIndex, isTopAdditionalDivision: false, isBottomAdditionalDivision: true})}>
+                <IconButton
+                  onClick={() =>
+                    onModalOpen({
+                      rowIndex,
+                      isTopAdditionalDivision: false,
+                      isBottomAdditionalDivision: true,
+                    })
+                  }
+                >
                   <EditIcon />
                 </IconButton>
                 <IconButton onClick={onBottomAdditionalDivisionDelete}>

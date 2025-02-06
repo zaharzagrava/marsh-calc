@@ -349,6 +349,13 @@ const CanvasWithExport = ({ routes, routeName }: { routes: Route[], routeName: s
 
   return (
     <Grid item>
+      <Button
+        variant="contained"
+        onClick={exportToPNG}
+        style={{ marginTop: "10px" }}
+      >
+        ЕКСПОРТ ПОХІДНОГО ПОРЯДКУ В PNG зображення
+      </Button>
       <svg
         ref={svgRef}
         xmlns="http://www.w3.org/2000/svg"
@@ -357,8 +364,6 @@ const CanvasWithExport = ({ routes, routeName }: { routes: Route[], routeName: s
         style={{ border: "1px solid black" }}
       >
         {(() => {
-          console.log('@ ---------------------------- @');
-
           const elements = [];
 
           const initialOffset = {
@@ -580,8 +585,6 @@ const CanvasWithExport = ({ routes, routeName }: { routes: Route[], routeName: s
                 );
               }
 
-              console.log('@isBottomAdditionalRoutePresent && !topRoute && gi === 0 && firstBottomAdditionalDivisionX && lastBottomAdditionalDivisionX');
-              console.log(isBottomAdditionalRoutePresent, topRoute, gi === 0, firstBottomAdditionalDivisionX, lastBottomAdditionalDivisionX);
               if(isBottomAdditionalRoutePresent && topRoute && gi === 0 && firstBottomAdditionalDivisionX && lastBottomAdditionalDivisionX) {
                 // topRoute check is so that we offset those values only once
                 firstBottomAdditionalDivisionX = firstBottomAdditionalDivisionX - groupMarginX;
@@ -680,13 +683,6 @@ const CanvasWithExport = ({ routes, routeName }: { routes: Route[], routeName: s
           return elements;
         })()}
       </svg>
-      <Button
-        variant="contained"
-        onClick={exportToPNG}
-        style={{ marginTop: "10px" }}
-      >
-        Export to PNG
-      </Button>
     </Grid>
   );
 };

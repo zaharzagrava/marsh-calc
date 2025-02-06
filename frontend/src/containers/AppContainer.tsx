@@ -188,7 +188,7 @@ const AppContainer = () => {
             }}
           />
           <TextField
-            label="Назва таблиці маршу" 
+            label="Назва таблиці маршу"
             value={formik.values.tableName}
             onChange={(e) => {
               formik.setFieldValue("tableName", e.target.value);
@@ -206,35 +206,38 @@ const AppContainer = () => {
           />
         </Grid>
         <Grid item>
-
-        <Stack direction="row" width="25%">
-          <Stack spacing={2} sx={{ flex: 1 }}>
-            <Typography variant="h5">Назва похідної застави (лівий фланг)</Typography>
-            <TextField
-              label="Назва похідної застави (лівий фланг)"
-              value={formik.values.routes[0].topAdditionalDivisionName}
-              onChange={(e) => {
-                formik.setFieldValue(
-                  `routes[0].topAdditionalDivisionName`,
-                  e.target.value
-                );
-              }}
-            />
+          <Stack direction="row" width="25%">
+            <Stack spacing={2} sx={{ flex: 1 }}>
+              <Typography variant="h5">
+                Назва похідної застави (лівий фланг)
+              </Typography>
+              <TextField
+                label="Назва похідної застави (лівий фланг)"
+                value={formik.values.routes[0].topAdditionalDivisionName}
+                onChange={(e) => {
+                  formik.setFieldValue(
+                    `routes[0].topAdditionalDivisionName`,
+                    e.target.value
+                  );
+                }}
+              />
+            </Stack>
+            <Stack spacing={2} sx={{ flex: 1 }}>
+              <Typography variant="h5">
+                Назва похідної застави (правий фланг)
+              </Typography>
+              <TextField
+                label="Назва похідної застави (правий фланг)"
+                value={formik.values.routes[0].bottomAdditionalDivisionName}
+                onChange={(e) => {
+                  formik.setFieldValue(
+                    `routes[0].bottomAdditionalDivisionName`,
+                    e.target.value
+                  );
+                }}
+              />
+            </Stack>
           </Stack>
-          <Stack spacing={2} sx={{ flex: 1 }}>
-            <Typography variant="h5">Назва похідної застави (правий фланг)</Typography>
-            <TextField
-              label="Назва похідної застави (правий фланг)"
-              value={formik.values.routes[0].bottomAdditionalDivisionName}
-              onChange={(e) => {
-                formik.setFieldValue(
-                  `routes[0].bottomAdditionalDivisionName`,
-                  e.target.value
-                );
-              }}
-            />
-          </Stack>
-        </Stack>
         </Grid>
         <Grid item>
           {processedRoutes.map((route, routeIndex) => (
@@ -270,17 +273,17 @@ const AppContainer = () => {
               ? "Прибрати другий маршрут"
               : "Додати другий маршрут"}
           </Button>
-          <Button variant="contained" onClick={() => setPreviewOpen(true)}>
-            Попередній перегляд та експорт
-          </Button>
         </Grid>
         <Grid item>
           <Stack direction="row" spacing={2}>
             <Button variant="contained" onClick={handleSaveToJson}>
-              Зберегти у JSON
+              Зберегти дані маршу у файл
             </Button>
             <Button variant="contained" onClick={handleLoadFromJson}>
-              Завантажити з JSON
+              Завантажити дані маршу із файлу
+            </Button>
+            <Button variant="contained" onClick={() => setPreviewOpen(true)}>
+              Попередній перегляд та експорт таблиці маршу в PNG зображення
             </Button>
           </Stack>
         </Grid>
@@ -325,123 +328,213 @@ const PreviewModal = ({
   processedRoutes,
   onExport,
   tableName,
-}: PreviewModalProps) => (
-  <Dialog
-    open={open}
-    onClose={onClose}
-    maxWidth={false}
-    fullWidth
-    sx={{ "& .MuiDialog-paper": { width: "100vw", margin: 2 } }}
-  >
-    <DialogTitle>Попередній перегляд таблиці</DialogTitle>
-    <DialogContent>
-      <Box  id="preview-table">
-        <Typography variant="h5" align="center">
-          {tableName}
-        </Typography>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ border: "2px solid black" }}>№</TableCell>
-                {Object.entries(columnNames).map(([key, columnName]) => (
+}: PreviewModalProps) => {
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth={false}
+      fullWidth
+      sx={{ "& .MuiDialog-paper": { width: "100vw", margin: 2 } }}
+    >
+      <DialogTitle>Попередній перегляд таблиці</DialogTitle>
+      <DialogContent>
+        <Box id="preview-table">
+          <Typography variant="h5" align="center">
+            {tableName}
+          </Typography>
+          {processedRoutes
+            .map((route, routeIndex) => {
+              return (
+                <PreviewRoute
+                  key={routeIndex}
+                  route={route}
+                  routeIndex={routeIndex}
+                />
+              );
+            })
+            .flat()}
+        </Box>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Закрити</Button>
+        <Button onClick={onExport} variant="contained">
+          Експортувати
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+const PreviewRoute = ({
+  route,
+  routeIndex,
+}: {
+  route: Route;
+  routeIndex: number;
+}) => {
+  const processedColumnsNames = useMemo(() => {
+    const processedColumnsNames: string[] = Object.entries(columnNames).reduce(
+      (acc, [key, columnName]) => {
+        if (key === "timeOfEndOfMovement") {
+          for (let i = 0; i < (route.routeData.stops || []).length; i++) {
+            acc.push(`РР ${i + 1} (Голова колонни) (год. хв.)`);
+            acc.push(`РР ${i + 1} (Хвіст колонни) (год. хв.)`);
+          }
+
+          acc.push(columnName);
+
+          return acc;
+        }
+
+        if (key === "topAdditionalDivision" || key === "edit") {
+          return acc;
+        }
+
+        acc.push(columnName);
+        return acc;
+      },
+      [] as string[]
+    );
+
+    return processedColumnsNames;
+  }, [route.routeData.stops]);
+
+  const getRowValue = useCallback((key: string, value: any) => {
+    if (
+      [
+        "timeToPassPointOfDeparture_convoyStart",
+        "timeToPassPointOfDeparture_convoyEnd",
+        "timeOfStartOfMovement",
+        "timeOfEndOfMovement",
+      ].includes(key) ||
+      key === "stopsData"
+    ) {
+      return (value as DateTime).toFormat("HH год. mm хв. dd.MM.yyyy");
+    }
+    return value;
+  }, []);
+
+  return (
+    <TableContainer>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell sx={{ border: "2px solid black" }}>№</TableCell>
+            {Object.entries(processedColumnsNames).map(([key, columnName]) => (
+              <TableCell
+                key={key}
+                sx={{
+                  border: "2px solid black",
+                }}
+              >
+                {columnName}
+              </TableCell>
+            ))}
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          <TableRow>
+            <TableCell
+              colSpan={Object.keys(processedColumnsNames).length + 1}
+              sx={{
+                padding: "8px",
+                border: "2px solid black",
+                textAlign: "center",
+                fontSize: "18px",
+              }}
+            >
+              Маршрут {routeIndex + 1}
+            </TableCell>
+          </TableRow>
+          {route.rows.map((row, rowIndex) => (
+            <TableRow key={rowIndex}>
+              <TableCell
+                sx={{
+                  border: "2px solid black",
+                  textAlign: "center",
+                }}
+              >
+                {rowIndex + 1}.
+              </TableCell>
+              {Object.entries(row)
+                .filter(
+                  ([key]) =>
+                    ![
+                      "leftBottomAmplificator",
+                      "rightBottomAmplificator",
+                      "centerBottomAmplificator",
+                      "leftTopAmplificator",
+                      "rightTopAmplificator",
+                      "centerTopAmplificator",
+                      "leftAmplificator",
+                      "rightAmplificator",
+                      "centerAmplificator",
+                      "topImageType",
+                      "mainImageTypes",
+                      "isUplifted",
+
+                      "topAdditionalDivision",
+                      "bottomAdditionalDivision",
+                      "stopsData",
+
+                      "timeOfEndOfMovement",
+                    ].includes(key)
+                )
+                .map(([key, value], colIndex) => (
                   <TableCell
-                    key={key}
+                    key={`${rowIndex}-${colIndex}`}
                     sx={{
+                      padding: "5px",
                       border: "2px solid black",
+                      textAlign: "center",
                     }}
                   >
-                    {columnName}
+                    {(() => {
+                      if (
+                        [
+                          "timeToPassPointOfDeparture_convoyStart",
+                          "timeToPassPointOfDeparture_convoyEnd",
+                          "timeOfStartOfMovement",
+                          "timeOfEndOfMovement",
+                        ].includes(key)
+                      ) {
+                        return (value as DateTime).toFormat(
+                          "HH год. mm хв. dd.MM.yyyy"
+                        );
+                      }
+                      return value;
+                    })()}
                   </TableCell>
                 ))}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {processedRoutes
-                .map((route, routeIndex) => {
-                  return (
-                    <>
-                      <TableRow>
-                        <TableCell
-                          colSpan={Object.keys(columnNames).length}
-                          sx={{
-                            padding: "8px",
-                            border: "2px solid black",
-                            textAlign: "center",
-                            fontSize: "18px",
-                          }}
-                        >
-                          Маршрут {routeIndex + 1}
-                        </TableCell>
-                      </TableRow>
-                      {route.rows.map((row, rowIndex) => (
-                        <TableRow key={rowIndex}>
-                          <TableCell sx={{ border: "2px solid black", textAlign: "center" }}>
-                            {rowIndex + 1}.
-                          </TableCell>
-                          {Object.entries(row)
-                            .filter(
-                              ([key]) =>
-                                ![
-                                  "leftBottomAmplificator",
-                                  "rightBottomAmplificator",
-                                  "centerBottomAmplificator",
-                                  "leftTopAmplificator",
-                                  "rightTopAmplificator",
-                                  "centerTopAmplificator",
-                                  "leftAmplificator",
-                                  "rightAmplificator",
-                                  "centerAmplificator",
-                                  "topImageType",
-                                  "mainImageTypes",
-                                  "isUplifted",
-                                  "additionalDivision",
-                                ].includes(key)
-                            )
-                            .map(([key, value], colIndex) => (
-                              <TableCell
-                                key={`${rowIndex}-${colIndex}`}
-                                sx={{
-                                  padding: "5px",
-                                  border: "2px solid black",
-                                  textAlign: "center",
-                                }}
-                              >
-                                {(() => {
-                                  if (
-                                    [
-                                      "timeToPassPointOfDeparture_convoyStart",
-                                      "timeToPassPointOfDeparture_convoyEnd",
-                                      "timeOfStartOfMovement",
-                                      "timeOfEndOfMovement",
-                                    ].includes(key)
-                                  ) {
-                                    return (value as DateTime).toFormat(
-                                      "HH год. mm хв. dd.MM.yyyy"
-                                    );
-                                  }
-                                  return value;
-                                })()}
-                              </TableCell>
-                            ))}
-                        </TableRow>
-                      ))}
-                    </>
-                  );
-                })
-                .flat()}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
-    </DialogContent>
-    <DialogActions>
-      <Button onClick={onClose}>Закрити</Button>
-      <Button onClick={onExport} variant="contained">
-        Експортувати
-      </Button>
-    </DialogActions>
-  </Dialog>
-);
+                {row.stopsData.map((stopData, colIndex) => (
+                  <TableCell
+                    key={`${rowIndex}-${colIndex}`}
+                    sx={{
+                      padding: "5px",
+                      border: "2px solid black",
+                      textAlign: "center",
+                    }}
+                  >
+                      {getRowValue("stopsData", stopData)}
+                  </TableCell>
+                ))}
+                <TableCell
+                  key={`${rowIndex}-timeOfEndOfMovement`}
+                  sx={{
+                    padding: "5px",
+                    border: "2px solid black",
+                    textAlign: "center",
+                  }}
+                >
+                    {getRowValue("timeOfEndOfMovement", row.timeOfEndOfMovement)}
+                </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+};
 
 export default AppContainer;

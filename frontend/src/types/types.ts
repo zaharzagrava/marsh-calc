@@ -93,6 +93,7 @@ export const defaultElem: RowData = {
   timeToPassPointOfDeparture_convoyEnd: DateTime.now(),
   timeOfStartOfMovement: DateTime.now(),
   timeOfEndOfMovement: DateTime.now(),
+  stopsData: [],
 };
 
 export const topImageTypes = [
@@ -176,12 +177,14 @@ export interface RowData extends DivisionGraphInfo {
 
   timeOfStartOfMovement: DateTime;
   timeOfEndOfMovement: DateTime;
+
+  stopsData: DateTime[];
 }
 
 export interface RouteData {
   directiveTimeOfEndOfMovement: DateTime;
   depthOfDestinationArea: number;
-  totalTimeOfStops: number;
+  stops: { duration: number; name: string; distance: number }[];
   lengthOfRoute: number;
   depthOfFullConvoy: number;
 }
@@ -286,7 +289,7 @@ export const defaultRouteDataEx1: RoutesDto = {
           millisecond: 0,
         }),
         depthOfDestinationArea: 17,
-        totalTimeOfStops: 2,
+        stops: [{ duration: 2, name: "Пункт регулювання 1", distance: 10 }],
         lengthOfRoute: 250,
         depthOfFullConvoy: 0,
       },
@@ -305,8 +308,8 @@ export const defaultRouteDataEx1: RoutesDto = {
     },
   ],
   groups: defaultGroups,
-  routeName: "ПОБУДОВА ПОХІДНОГО ПОРЯДКУ",
-  tableName: "НАЗВА ТАБЛИЦІ",
+  routeName: "Похідний поряднок 2 омбр",
+  tableName: "Таблиця маршу",
 };
 
 export const defaultRouteDataEx2: RoutesDto = {
@@ -370,7 +373,7 @@ export const defaultRouteDataEx2: RoutesDto = {
           millisecond: 0,
         }),
         depthOfDestinationArea: 17,
-        totalTimeOfStops: 2,
+        stops: [{ duration: 2, name: "Пункт регулювання 1", distance: 10 }],
         lengthOfRoute: 250,
         depthOfFullConvoy: 0,
       },
