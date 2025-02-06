@@ -166,7 +166,8 @@ export interface RowData extends DivisionGraphInfo {
   speedOfExtraction: number;
   speed: number;
 
-  additionalDivision?: DivisionGraphInfo;
+  topAdditionalDivision?: DivisionGraphInfo;
+  bottomAdditionalDivision?: DivisionGraphInfo;
 
   // Calculated data
   depthOfConvoy: number;
@@ -189,7 +190,8 @@ export interface Route {
   rows: RowData[];
   routeData: RouteData;
   groupsInfo: GroupInfo[];
-  additionalDivisionName?: string;
+  topAdditionalDivisionName?: string;
+  bottomAdditionalDivisionName?: string;
 }
 
 export interface GroupInfo {
@@ -298,7 +300,8 @@ export const defaultRouteDataEx1: RoutesDto = {
           rows: [3, 4, 5, 6, 7, 8, 9],
         },
       ],
-      additionalDivisionName: "",
+      topAdditionalDivisionName: "",
+      bottomAdditionalDivisionName: "",
     },
   ],
   groups: defaultGroups,
@@ -381,7 +384,8 @@ export const defaultRouteDataEx2: RoutesDto = {
           rows: [3, 4, 5, 6, 7, 8],
         },
       ],
-      additionalDivisionName: "",
+      topAdditionalDivisionName: "",
+      bottomAdditionalDivisionName: "",
     },
   ],
   groups: defaultGroups,

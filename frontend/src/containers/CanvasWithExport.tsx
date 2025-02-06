@@ -375,7 +375,7 @@ const CanvasWithExport = ({ routes, routeName }: { routes: Route[], routeName: s
           const groupMarginY = 100;
 
           const groupFromInitialOffsetY = 100;
-          const doesTopRouteHasAdditionalDivision = routes[0].rows.find(r => r.additionalDivision);
+          const doesTopRouteHasAdditionalDivision = routes[0].rows.find(r => r.topAdditionalDivision);
           const additionalDivisionsHeight =
             (doesTopRouteHasAdditionalDivision ? 1 : 0) * divisionHeight +
             100;
@@ -390,8 +390,12 @@ const CanvasWithExport = ({ routes, routeName }: { routes: Route[], routeName: s
           // groupsInfo in all routes are the same, and also synced with groups in formik
           let lastGroupHeight = 0;
 
-          let firstAdditionalDivisionX = null;
-          let lastAdditionalDivisionX = null;
+          let firstTopAdditionalDivisionX = null;
+          let lastTopAdditionalDivisionX = null;
+
+          let firstBottomAdditionalDivisionX = null;
+          let lastBottomAdditionalDivisionX = null;
+
           for (let gi = routes[0].groupsInfo.length - 1; gi >= 0; gi--) {
             const { allRoutesWidths, allRoutesDivisions } = (() => {
               const allRoutesWidths = [];
@@ -424,15 +428,11 @@ const CanvasWithExport = ({ routes, routeName }: { routes: Route[], routeName: s
             lastGroupHeight = groupHeight;
 
             const rects = [];
+            const isBottomRoutePresent = allRoutesDivisions.length > 1;
             for (let index = 0; index < allRoutesDivisions.length; index++) {
               const topRoute = index === 0;
-              const additionalDivisionsOffsetY =  (() => {
-                if(topRoute) {
-                  return initialOffset.y + (groupFromInitialOffsetY / 2) + 35;
-                }
-
-                return groupOffset.y + groupHeight + 100;
-              })();
+              const topAdditionalDivisionsOffsetY =  initialOffset.y + (groupFromInitialOffsetY / 2) + 35;
+              const bottomAdditionalDivisionsOffsetY =  groupOffset.y + groupHeight + 100;
 
               const { divisions } = allRoutesDivisions[index];
 
@@ -472,15 +472,37 @@ const CanvasWithExport = ({ routes, routeName }: { routes: Route[], routeName: s
                   })
                 );
 
-                if(division.additionalDivision) {
-                  firstAdditionalDivisionX = firstAdditionalDivisionX ? Math.min(firstAdditionalDivisionX, divisionX) : divisionX;
-                  lastAdditionalDivisionX = lastAdditionalDivisionX ? Math.max(lastAdditionalDivisionX, divisionX) : divisionX;
+                if(division.topAdditionalDivision) {
+                  firstTopAdditionalDivisionX = firstTopAdditionalDivisionX ? Math.min(firstTopAdditionalDivisionX, divisionX) : divisionX;
+                  lastTopAdditionalDivisionX = lastTopAdditionalDivisionX ? Math.max(lastTopAdditionalDivisionX, divisionX) : divisionX;
 
                   rects.push(
                     renderDivision({
-                      division: division.additionalDivision,
+                      division: division.topAdditionalDivision,
                       divisionX,
-                      divisionY: additionalDivisionsOffsetY,
+                      divisionY: topAdditionalDivisionsOffsetY,
+                      divisionWidth,
+                      divisionHeight,
+                      rectBottomOffset,
+                      rectBottomOffset2,
+                      groupIndex: gi,
+                      isLastDivision: false,
+                      indexStr: `${index}-${d}-additional`,
+                      routes,
+                      skipBlackLines: true,
+                    })
+                  );
+                }
+
+                if(division.bottomAdditionalDivision) {
+                  firstBottomAdditionalDivisionX = firstBottomAdditionalDivisionX ? Math.min(firstBottomAdditionalDivisionX, divisionX) : divisionX;
+                  lastBottomAdditionalDivisionX = lastBottomAdditionalDivisionX ? Math.max(lastBottomAdditionalDivisionX, divisionX) : divisionX;
+
+                  rects.push(
+                    renderDivision({
+                      division: division.bottomAdditionalDivision,
+                      divisionX,
+                      divisionY: bottomAdditionalDivisionsOffsetY,
                       divisionWidth,
                       divisionHeight,
                       rectBottomOffset,
@@ -524,21 +546,20 @@ const CanvasWithExport = ({ routes, routeName }: { routes: Route[], routeName: s
                 );
               }
 
-              const doesThisRouteHasAdditionalDivision = !!routes[index].rows.find(r => r.additionalDivision);
-              if(doesThisRouteHasAdditionalDivision && gi === 0 && firstAdditionalDivisionX && lastAdditionalDivisionX) {
-                if(topRoute) {
-                  // topRoute check is so that we offset those values only once
-                  firstAdditionalDivisionX = firstAdditionalDivisionX - groupMarginX;
-                  lastAdditionalDivisionX = lastAdditionalDivisionX + groupMarginX + divisionWidth;
-                }
+              const isTopAdditionalRoutePresent = !!routes[0].rows.find(r => r.topAdditionalDivision);
+              const isBottomAdditionalRoutePresent = !!routes[0].rows.find(r => r.bottomAdditionalDivision);
+              if(isTopAdditionalRoutePresent && topRoute && gi === 0 && firstTopAdditionalDivisionX && lastTopAdditionalDivisionX) {
+                // topRoute check is so that we offset those values only once
+                firstTopAdditionalDivisionX = firstTopAdditionalDivisionX - groupMarginX;
+                lastTopAdditionalDivisionX = lastTopAdditionalDivisionX + groupMarginX + divisionWidth;
 
-                const groupWidth = lastAdditionalDivisionX - firstAdditionalDivisionX;
+                const groupWidth = lastTopAdditionalDivisionX - firstTopAdditionalDivisionX;
 
                 rects.push(
                   <>
                     <rect
-                      x={firstAdditionalDivisionX}
-                      y={additionalDivisionsOffsetY - 35}
+                      x={firstTopAdditionalDivisionX}
+                      y={topAdditionalDivisionsOffsetY - 35}
                       width={groupWidth}
                       height={divisionHeight + 80}
                       fill="none"
@@ -547,13 +568,47 @@ const CanvasWithExport = ({ routes, routeName }: { routes: Route[], routeName: s
                       strokeDasharray="27,17"
                     />
                     <text
-                      x={firstAdditionalDivisionX}
-                      y={additionalDivisionsOffsetY - 55}
+                      x={firstTopAdditionalDivisionX}
+                      y={topAdditionalDivisionsOffsetY - 55}
                       fill="black"
                       fontSize="18"
                       textAnchor="start"
                     >
-                      {routes[index].additionalDivisionName}
+                      {routes[0].topAdditionalDivisionName}
+                    </text>
+                  </>
+                );
+              }
+
+              console.log('@isBottomAdditionalRoutePresent && !topRoute && gi === 0 && firstBottomAdditionalDivisionX && lastBottomAdditionalDivisionX');
+              console.log(isBottomAdditionalRoutePresent, topRoute, gi === 0, firstBottomAdditionalDivisionX, lastBottomAdditionalDivisionX);
+              if(isBottomAdditionalRoutePresent && topRoute && gi === 0 && firstBottomAdditionalDivisionX && lastBottomAdditionalDivisionX) {
+                // topRoute check is so that we offset those values only once
+                firstBottomAdditionalDivisionX = firstBottomAdditionalDivisionX - groupMarginX;
+                lastBottomAdditionalDivisionX = lastBottomAdditionalDivisionX + groupMarginX + divisionWidth;
+
+                const groupWidth = lastBottomAdditionalDivisionX - firstBottomAdditionalDivisionX;
+
+                rects.push(
+                  <>
+                    <rect
+                      x={firstBottomAdditionalDivisionX}
+                      y={bottomAdditionalDivisionsOffsetY - 35}
+                      width={groupWidth}
+                      height={divisionHeight + 80}
+                      fill="none"
+                      stroke="black"
+                      strokeWidth="2.5"
+                      strokeDasharray="27,17"
+                    />
+                    <text
+                      x={firstBottomAdditionalDivisionX}
+                      y={bottomAdditionalDivisionsOffsetY - 55}
+                      fill="black"
+                      fontSize="18"
+                      textAnchor="start"
+                    >
+                      {routes[0].bottomAdditionalDivisionName}
                     </text>
                   </>
                 );
@@ -592,7 +647,7 @@ const CanvasWithExport = ({ routes, routeName }: { routes: Route[], routeName: s
 
           const rightMargin = 50;
           const pointyOffset = 45;
-          const isLastRouteHasAdditionalDivision = routes[1]?.additionalDivisionName;
+          const isLastRouteHasAdditionalDivision = Boolean(routes[0]?.rows.find(r => r.topAdditionalDivision || r.bottomAdditionalDivision));
           const adjustedLastGroupHeight = lastGroupHeight + (isLastRouteHasAdditionalDivision ? 225 : 0);
           elements.push(
             <>

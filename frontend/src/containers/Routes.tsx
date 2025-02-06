@@ -51,14 +51,16 @@ interface RoutesProps {
 }
 
 const Routes = ({ route, routeIndex, setFieldValue }: RoutesProps) => {
-  const [selectedRowIndex, setSelectedRowIndex] = useState<{index: number, isAdditionalDivision: boolean} | null>(null);
+  const [selectedRowIndex, setSelectedRowIndex] = useState<{
+    index: number;
+    isTopAdditionalDivision: boolean;
+    isBottomAdditionalDivision: boolean;
+  } | null>(null);
 
   const handleAddRow = useCallback(() => {
     const newRow = { ...defaultElem };
 
     const newRows = [...route.rows, newRow];
-    console.log('@newRows');
-    console.log(newRows);
     setFieldValue(`routes[${routeIndex}].rows`, newRows);
 
     // Add new row index to last group
@@ -69,8 +71,20 @@ const Routes = ({ route, routeIndex, setFieldValue }: RoutesProps) => {
   }, [route, routeIndex, setFieldValue]);
 
   const handleModalOpen = useCallback(
-    (rowIndex: number, isAdditionalDivision: boolean) => {
-      setSelectedRowIndex({index: rowIndex, isAdditionalDivision});
+    ({
+      rowIndex,
+      isTopAdditionalDivision,
+      isBottomAdditionalDivision,
+    }: {
+      rowIndex: number;
+      isTopAdditionalDivision: boolean;
+      isBottomAdditionalDivision: boolean;
+    }) => {
+      setSelectedRowIndex({
+        index: rowIndex,
+        isTopAdditionalDivision,
+        isBottomAdditionalDivision,
+      });
     },
     [setSelectedRowIndex]
   );
@@ -81,13 +95,18 @@ const Routes = ({ route, routeIndex, setFieldValue }: RoutesProps) => {
 
   return (
     <Card sx={{ p: 1 }}>
+      <Typography variant="h5">Таблиця маршруту</Typography>
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
-              {Object.entries(columnNames).map(([key, columnName]) => (
-                <TableCell key={key}>{columnName}</TableCell>
-              ))}
+              {Object.entries(columnNames).map(([key, columnName]) => {
+                if(routeIndex !== 0 && key === "topAdditionalDivision") {
+                  return <></>
+                }
+
+                return <TableCell key={key}>{columnName}</TableCell>
+              })}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -96,8 +115,8 @@ const Routes = ({ route, routeIndex, setFieldValue }: RoutesProps) => {
                 key={rowIndex}
                 row={row}
                 rowIndex={rowIndex}
-                route={route}
                 routeIndex={routeIndex}
+                route={route}
                 onRowChange={(newRows) => {
                   setFieldValue(`routes[${routeIndex}].rows`, newRows);
                 }}
@@ -203,28 +222,22 @@ const Routes = ({ route, routeIndex, setFieldValue }: RoutesProps) => {
           ))}
         </Stack>
       </Box>
-
-      <Box sx={{ mt: 2, mb: 2 }}>
-        <Typography variant="h5">Додатковий маршрут</Typography>
-        <Stack spacing={2}>
-          <TextField
-            label="Назва додаткового маршруту"
-            value={route.additionalDivisionName}
-            onChange={(e) => {
-              setFieldValue(`routes[${routeIndex}].additionalDivisionName`, e.target.value);
-            }}
-          />
-        </Stack>
-      </Box>
-
-      {(selectedRowIndex !== null) && (
+  
+      {selectedRowIndex !== null && (
         <AmplificatorModal
           index={selectedRowIndex.index}
-          isAdditionalDivision={selectedRowIndex.isAdditionalDivision}
+          isTopAdditionalDivision={selectedRowIndex.isTopAdditionalDivision}
+          isBottomAdditionalDivision={selectedRowIndex.isBottomAdditionalDivision}
           handleModalClose={handleModalClose}
           row={(() => {
-            if(selectedRowIndex.isAdditionalDivision) {
-              return route.rows[selectedRowIndex.index].additionalDivision as DivisionGraphInfo;
+            if (selectedRowIndex.isTopAdditionalDivision) {
+              return route.rows[selectedRowIndex.index]
+                .topAdditionalDivision as DivisionGraphInfo;
+            }
+
+            if (selectedRowIndex.isBottomAdditionalDivision) {
+              return route.rows[selectedRowIndex.index]
+                .bottomAdditionalDivision as DivisionGraphInfo;
             }
 
             return route.rows[selectedRowIndex.index] as DivisionGraphInfo;
@@ -239,7 +252,8 @@ const Routes = ({ route, routeIndex, setFieldValue }: RoutesProps) => {
 
 interface AmplificatorModalProps {
   index: number | null;
-  isAdditionalDivision: boolean;
+  isTopAdditionalDivision: boolean;
+  isBottomAdditionalDivision: boolean;
   row: DivisionGraphInfo;
   handleModalClose: () => void;
   routeIndex: number;
@@ -249,26 +263,39 @@ interface AmplificatorModalProps {
 const AmplificatorModal = ({
   index,
   row,
-  isAdditionalDivision,
+  isTopAdditionalDivision,
+  isBottomAdditionalDivision,
   handleModalClose,
   routeIndex,
   setFieldValue,
 }: AmplificatorModalProps) => {
   const editPath = useMemo(() => {
-    if(isAdditionalDivision) {
-      return `routes[${routeIndex}].rows[${index}].additionalDivision`;
+    if (isTopAdditionalDivision) {
+      return `routes[${routeIndex}].rows[${index}].topAdditionalDivision`;
+    }
+
+    if (isBottomAdditionalDivision) {
+      return `routes[${routeIndex}].rows[${index}].bottomAdditionalDivision`;
     }
 
     return `routes[${routeIndex}].rows[${index}]`;
-  }, [isAdditionalDivision, index, routeIndex]);
+  }, [isTopAdditionalDivision, isBottomAdditionalDivision, index, routeIndex]);
 
-  const editValue = useCallback((key: string, e: React.ChangeEvent<HTMLInputElement>) => {
-    const fullKey = `${editPath}.${key}`;
-    setFieldValue(fullKey, e.target.value);
-  }, [editPath, setFieldValue]);
+  const editValue = useCallback(
+    (key: string, e: React.ChangeEvent<HTMLInputElement>) => {
+      const fullKey = `${editPath}.${key}`;
+      setFieldValue(fullKey, e.target.value);
+    },
+    [editPath, setFieldValue]
+  );
 
   return (
-    <Dialog open={index !== null} onClose={handleModalClose} maxWidth="md" fullWidth>
+    <Dialog
+      open={index !== null}
+      onClose={handleModalClose}
+      maxWidth="md"
+      fullWidth
+    >
       <DialogTitle>Редагувати деталі підрозділу</DialogTitle>
       <DialogContent>
         <Autocomplete
@@ -276,9 +303,13 @@ const AmplificatorModal = ({
           options={topImageTypes}
           getOptionLabel={(option) => option.uaName}
           renderOption={(props, option) => (
-            <Box component="li" sx={{ display: 'flex', alignItems: 'center' }} {...props}>
-              <img 
-                src={svgFromPath(option.svgPath) || ''} 
+            <Box
+              component="li"
+              sx={{ display: "flex", alignItems: "center" }}
+              {...props}
+            >
+              <img
+                src={svgFromPath(option.svgPath) || ""}
                 alt={option.uaName}
                 style={{ width: 24, height: 24, marginRight: 8 }}
               />
@@ -301,19 +332,19 @@ const AmplificatorModal = ({
             <TextField
               fullWidth
               label="Лівий верхній ампліфікатор"
-              value={row.leftTopAmplificator || ''}
+              value={row.leftTopAmplificator || ""}
               onChange={editValue.bind(null, "leftTopAmplificator")}
             />
             <TextField
               fullWidth
               label="Центральний верхній ампліфікатор"
-              value={row.centerTopAmplificator || ''}
+              value={row.centerTopAmplificator || ""}
               onChange={editValue.bind(null, "centerTopAmplificator")}
             />
             <TextField
               fullWidth
               label="Правий верхній ампліфікатор"
-              value={row.rightTopAmplificator || ''}
+              value={row.rightTopAmplificator || ""}
               onChange={editValue.bind(null, "rightTopAmplificator")}
             />
           </Stack>
@@ -322,19 +353,19 @@ const AmplificatorModal = ({
             <TextField
               fullWidth
               label="Лівий ампліфікатор"
-              value={row.leftAmplificator || ''}
+              value={row.leftAmplificator || ""}
               onChange={editValue.bind(null, "leftAmplificator")}
             />
             <TextField
               fullWidth
               label="Центральний ампліфікатор"
-              value={row.centerAmplificator || ''}
+              value={row.centerAmplificator || ""}
               onChange={editValue.bind(null, "centerAmplificator")}
             />
             <TextField
               fullWidth
               label="Правий ампліфікатор"
-              value={row.rightAmplificator || ''}
+              value={row.rightAmplificator || ""}
               onChange={editValue.bind(null, "rightAmplificator")}
             />
           </Stack>
@@ -343,34 +374,40 @@ const AmplificatorModal = ({
             <TextField
               fullWidth
               label="Лівий нижній ампліфікатор"
-              value={row.leftBottomAmplificator || ''}
+              value={row.leftBottomAmplificator || ""}
               onChange={editValue.bind(null, "leftBottomAmplificator")}
             />
             <TextField
               fullWidth
               label="Центральний нижній ампліфікатор"
-              value={row.centerBottomAmplificator || ''}
+              value={row.centerBottomAmplificator || ""}
               onChange={editValue.bind(null, "centerBottomAmplificator")}
             />
             <TextField
               fullWidth
               label="Правий нижній ампліфікатор"
-              value={row.rightBottomAmplificator || ''}
+              value={row.rightBottomAmplificator || ""}
               onChange={editValue.bind(null, "rightBottomAmplificator")}
             />
           </Stack>
 
           <Autocomplete
             multiple
-            value={mainImageTypes.filter((t) =>
-              row.mainImageTypes?.includes(t.type)
-            ) || []}
+            value={
+              mainImageTypes.filter((t) =>
+                row.mainImageTypes?.includes(t.type)
+              ) || []
+            }
             options={mainImageTypes}
             getOptionLabel={(option) => option.uaName}
             renderOption={(props, option) => (
-              <Box component="li" sx={{ display: 'flex', alignItems: 'center' }} {...props}>
+              <Box
+                component="li"
+                sx={{ display: "flex", alignItems: "center" }}
+                {...props}
+              >
                 <img
-                  src={svgFromPath(option.svgPath) || ''}
+                  src={svgFromPath(option.svgPath) || ""}
                   alt={option.uaName}
                   style={{ width: 24, height: 24, marginRight: 8 }}
                 />
@@ -388,11 +425,13 @@ const AmplificatorModal = ({
             )}
           />
 
-          <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
-            <Typography sx={{ fontSize: '14px' }}>Піднятий</Typography>
+          <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
+            <Typography sx={{ fontSize: "14px" }}>Піднятий</Typography>
             <Checkbox
               checked={row.isUplifted}
-              onChange={(e) => setFieldValue(`${editPath}.isUplifted`, e.target.checked)}
+              onChange={(e) =>
+                setFieldValue(`${editPath}.isUplifted`, e.target.checked)
+              }
               title="Піднятий"
             />
           </Stack>
@@ -414,13 +453,22 @@ interface RouteRowProps {
   routeIndex: number;
   onRowChange: (newRows: RowData[]) => void;
   onDeleteRow: (rowIndex: number) => void;
-  onModalOpen: (rowIndex: number, isAdditionalDivision: boolean) => void;
+  onModalOpen: ({
+    rowIndex,
+    isTopAdditionalDivision,
+    isBottomAdditionalDivision,
+  }: {
+    rowIndex: number;
+    isTopAdditionalDivision: boolean;
+    isBottomAdditionalDivision: boolean;
+  }) => void;
 }
 
 const RouteRow = ({
   row,
   rowIndex,
   route,
+  routeIndex,
   onRowChange,
   onDeleteRow,
   onModalOpen,
@@ -444,20 +492,38 @@ const RouteRow = ({
     [rowIndex, route.rows, onRowChange]
   );
 
-  const onAdditionalDivisionAdd = useCallback(() => {
+  const onTopAdditionalDivisionAdd = useCallback(() => {
     const newRows = [...route.rows];
     newRows[rowIndex] = {
       ...newRows[rowIndex],
-      additionalDivision: { ...defaultElemGraphInfo },
+      topAdditionalDivision: { ...defaultElemGraphInfo },
     };
     onRowChange(newRows);
   }, [rowIndex, route.rows, onRowChange]);
-  
-  const onAdditionalDivisionDelete = useCallback(() => {
+
+  const onTopAdditionalDivisionDelete = useCallback(() => {
     const newRows = [...route.rows];
     newRows[rowIndex] = {
       ...newRows[rowIndex],
-      additionalDivision: undefined,
+      topAdditionalDivision: undefined,
+    };
+    onRowChange(newRows);
+  }, [rowIndex, route.rows, onRowChange]);
+
+  const onBottomAdditionalDivisionAdd = useCallback(() => {
+    const newRows = [...route.rows];
+    newRows[rowIndex] = {
+      ...newRows[rowIndex],
+      bottomAdditionalDivision: { ...defaultElemGraphInfo },
+    };
+    onRowChange(newRows);
+  }, [rowIndex, route.rows, onRowChange]);
+
+  const onBottomAdditionalDivisionDelete = useCallback(() => {
+    const newRows = [...route.rows];
+    newRows[rowIndex] = {
+      ...newRows[rowIndex],
+      bottomAdditionalDivision: undefined,
     };
     onRowChange(newRows);
   }, [rowIndex, route.rows, onRowChange]);
@@ -502,7 +568,8 @@ const RouteRow = ({
               "mainImageTypes",
               "isUplifted",
 
-              "additionalDivision",
+              "topAdditionalDivision",
+              "bottomAdditionalDivision",
             ].includes(key)
         )
         .map(([key, value], colIndex) => (
@@ -559,8 +626,8 @@ const RouteRow = ({
         ))}
       <TableCell sx={{ margin: 0, padding: 0 }}>
         <Stack direction="row">
-          <IconButton onClick={() => onModalOpen(rowIndex, false)}>
-            <EditIcon sx={{ transform: 'scale(1.2)' }} />
+          <IconButton onClick={() => onModalOpen({rowIndex, isTopAdditionalDivision: false, isBottomAdditionalDivision: false})}>
+            <EditIcon sx={{ transform: "scale(1.2)" }} />
           </IconButton>
           <IconButton
             disabled={isDeleteDisabled()}
@@ -568,23 +635,43 @@ const RouteRow = ({
           >
             <DeleteIcon />
           </IconButton>
-          <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
-          {row.additionalDivision ? (
-            <>
-              <IconButton onClick={() => onModalOpen(rowIndex, true)}>
-                <EditIcon />
-              </IconButton>
-              <IconButton onClick={onAdditionalDivisionDelete}>
-                <DeleteIcon />
-              </IconButton>
-            </>
-          ) : (
-            <IconButton onClick={onAdditionalDivisionAdd}>
-              <AddIcon />
-            </IconButton>
-          )}
         </Stack>
       </TableCell>
+      {routeIndex === 0 && (
+        <TableCell sx={{ margin: 0, padding: 0 }}>
+          <Stack direction="row">
+            {row.topAdditionalDivision ? (
+              <>
+                <IconButton onClick={() => onModalOpen({rowIndex, isTopAdditionalDivision: true, isBottomAdditionalDivision: false})}>
+                  <EditIcon />
+                </IconButton>
+                <IconButton onClick={onTopAdditionalDivisionDelete}>
+                  <DeleteIcon />
+                </IconButton>
+              </>
+            ) : (
+              <IconButton onClick={onTopAdditionalDivisionAdd}>
+                <AddIcon />
+              </IconButton>
+            )}
+            <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+            {row.bottomAdditionalDivision ? (
+              <>
+                <IconButton onClick={() => onModalOpen({rowIndex, isTopAdditionalDivision: false, isBottomAdditionalDivision: true})}>
+                  <EditIcon />
+                </IconButton>
+                <IconButton onClick={onBottomAdditionalDivisionDelete}>
+                  <DeleteIcon />
+                </IconButton>
+              </>
+            ) : (
+              <IconButton onClick={onBottomAdditionalDivisionAdd}>
+                <AddIcon />
+              </IconButton>
+            )}
+          </Stack>
+        </TableCell>
+      )}
     </TableRow>
   );
 };

@@ -71,6 +71,8 @@ export const columnNames = {
   timeOfStartOfMovement: "Час початку руху Висування (год. хв.)",
   timeOfEndOfMovement:
     "Директивний час зосередження підрозділів у районі призначення Tзос. (год. хв.)",
+  edit: "Редагувати підрозділ",
+  topAdditionalDivision: "Бокові похідні застави",
 };
 
 const AppContainer = () => {
@@ -179,14 +181,14 @@ const AppContainer = () => {
       <Grid container direction="column" spacing={2} sx={{ p: 3 }}>
         <Grid item>
           <TextField
-            label="Назва малюнку маршрутів"
+            label="Назва похідного порядку"
             value={formik.values.routeName}
             onChange={(e) => {
               formik.setFieldValue("routeName", e.target.value);
             }}
           />
           <TextField
-            label="Назва таблиці"
+            label="Назва таблиці маршу" 
             value={formik.values.tableName}
             onChange={(e) => {
               formik.setFieldValue("tableName", e.target.value);
@@ -202,6 +204,37 @@ const AppContainer = () => {
               formik.setFieldValue("routes", newRoutes);
             }}
           />
+        </Grid>
+        <Grid item>
+
+        <Stack direction="row" width="25%">
+          <Stack spacing={2} sx={{ flex: 1 }}>
+            <Typography variant="h5">Назва похідної застави (лівий фланг)</Typography>
+            <TextField
+              label="Назва похідної застави (лівий фланг)"
+              value={formik.values.routes[0].topAdditionalDivisionName}
+              onChange={(e) => {
+                formik.setFieldValue(
+                  `routes[0].topAdditionalDivisionName`,
+                  e.target.value
+                );
+              }}
+            />
+          </Stack>
+          <Stack spacing={2} sx={{ flex: 1 }}>
+            <Typography variant="h5">Назва похідної застави (правий фланг)</Typography>
+            <TextField
+              label="Назва похідної застави (правий фланг)"
+              value={formik.values.routes[0].bottomAdditionalDivisionName}
+              onChange={(e) => {
+                formik.setFieldValue(
+                  `routes[0].bottomAdditionalDivisionName`,
+                  e.target.value
+                );
+              }}
+            />
+          </Stack>
+        </Stack>
         </Grid>
         <Grid item>
           {processedRoutes.map((route, routeIndex) => (
