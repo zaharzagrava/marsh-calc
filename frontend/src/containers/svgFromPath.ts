@@ -8,6 +8,15 @@ import EmptySvg from "../assets/division-types/empty.svg";
 import OvalSvg from "../assets/division-types/oval.svg";
 import TopTwoArrowsSvg from "../assets/division-types/top-two-arrows.svg";
 import TriangleSvg from "../assets/division-types/triangle.svg";
+import CrossSvg from "../assets/division-types/cross.svg";
+import HorLineSvg from "../assets/division-types/hor-line.svg";
+import VertLineSvg from "../assets/division-types/vert-line.svg";
+import BotFilledTriangleSvg from "../assets/division-types/bot-filled-triangle.svg";
+import MechanisedSvg from "../assets/division-types/mechanised.svg";
+import FilledCircleSvg from "../assets/division-types/filled-circle.svg";
+import MaintenanceSvg from "../assets/division-types/maintenance.svg";
+import RetortsSvg from "../assets/division-types/retorts.svg";
+import EwSvg from "../assets/division-types/ew.svg";
 
 // Top image types
 
@@ -77,7 +86,16 @@ const svgFromPath = (path: string | undefined) => {
     case "../assets/division-types/oval.svg": return OvalSvg;
     case "../assets/division-types/top-two-arrows.svg": return TopTwoArrowsSvg;
     case "../assets/division-types/triangle.svg": return TriangleSvg;
-
+    case "../assets/division-types/cross.svg": return CrossSvg;
+    case "../assets/division-types/hor-line.svg": return HorLineSvg;
+    case "../assets/division-types/vert-line.svg": return VertLineSvg;
+    case "../assets/division-types/bot-filled-triangle.svg": return BotFilledTriangleSvg;
+    case "../assets/division-types/mechanised.svg": return MechanisedSvg;
+    case "../assets/division-types/filled-circle.svg": return FilledCircleSvg;
+    case "../assets/division-types/maintenance.svg": return MaintenanceSvg;
+    case "../assets/division-types/retorts.svg": return RetortsSvg;
+    case "../assets/division-types/ew.svg": return EwSvg;
+    
     default: return null;
   }
 }

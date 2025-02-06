@@ -285,7 +285,7 @@ const renderDivision = ({
   );
 };
 
-const CanvasWithExport = ({ routes }: { routes: Route[] }) => {
+const CanvasWithExport = ({ routes, routeName }: { routes: Route[], routeName: string }) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
 
   const exportToPNG = useCallback(() => {
@@ -579,7 +579,7 @@ const CanvasWithExport = ({ routes }: { routes: Route[] }) => {
                   width={groupWidth}
                   height={groupHeight}
                   fill="none"
-                  stroke="black"
+                  stroke="blue"
                   strokeWidth="2.5"
                   strokeDasharray="27,17"
                 />
@@ -591,7 +591,7 @@ const CanvasWithExport = ({ routes }: { routes: Route[] }) => {
           }
 
           const rightMargin = 50;
-          const pointyOffset = 10;
+          const pointyOffset = 45;
           const isLastRouteHasAdditionalDivision = routes[1]?.additionalDivisionName;
           const adjustedLastGroupHeight = lastGroupHeight + (isLastRouteHasAdditionalDivision ? 225 : 0);
           elements.push(
@@ -603,14 +603,14 @@ const CanvasWithExport = ({ routes }: { routes: Route[] }) => {
                 fontSize="18"
                 textAnchor="middle"
               >
-                ПОБУДОВА ПОХІДНОГО ПОРЯДКУ
+                {routeName}
               </text>
               <path
                 key="blue-arrow"
                 d={`M ${initialOffset.x - 10} ${initialOffset.y}
                     L ${groupOffset.x + rightMargin} ${initialOffset.y}
                     L ${groupOffset.x + rightMargin} ${initialOffset.y - pointyOffset}
-                    L ${groupOffset.x + rightMargin + 20} ${(groupOffset.y + adjustedLastGroupHeight + 120) / 2}
+                    L ${groupOffset.x + rightMargin + 60} ${(groupOffset.y + adjustedLastGroupHeight + 120) / 2}
                     L ${groupOffset.x + rightMargin} ${groupOffset.y + adjustedLastGroupHeight + 20 + pointyOffset}
                     L ${groupOffset.x + rightMargin} ${groupOffset.y + adjustedLastGroupHeight + 20}
                     L ${initialOffset.x - 10} ${groupOffset.y + adjustedLastGroupHeight + 20}

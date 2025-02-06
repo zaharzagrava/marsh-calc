@@ -48,6 +48,15 @@ export enum MainImageType {
   Oval = "oval",
   TopTwoArrows = "top-two-arrows",
   Triangle = "triangle",
+  Cross = "cross",
+  HorLine = "hor-line",
+  VertLine = "vert-line",
+  BotFilledTriangle = "bot-filled-triangle",
+  Mechanised = "mechanised",
+  FilledCircle = "filled-circle",
+  Maintenance = "maintenance",
+  Retorts = "retorts",
+  Ew = "ew",
 }
 
 export const defaultElemGraphInfo: DivisionGraphInfo = {
@@ -87,37 +96,46 @@ export const defaultElem: RowData = {
 };
 
 export const topImageTypes = [
-  { type: TopImageType.Circle1, uaName: "Circle1", svgPath: "../assets/top-image-types/circle-1.svg" },
-  { type: TopImageType.Circle2, uaName: "Circle2", svgPath: "../assets/top-image-types/circle-2.svg" },
-  { type: TopImageType.Circle3, uaName: "Circle3", svgPath: "../assets/top-image-types/circle-3.svg" },
-  { type: TopImageType.Circle4, uaName: "Circle4", svgPath: "../assets/top-image-types/circle-4.svg" },
-  { type: TopImageType.CircleCrossed, uaName: "CircleCrossed", svgPath: "../assets/top-image-types/circle-crossed.svg" },
+  { type: TopImageType.Circle1, uaName: "Відділення", svgPath: "../assets/top-image-types/circle-1.svg" },
+  { type: TopImageType.Circle2, uaName: "Секція", svgPath: "../assets/top-image-types/circle-2.svg" },
+  { type: TopImageType.Circle3, uaName: "Взвод", svgPath: "../assets/top-image-types/circle-3.svg" },
+  { type: TopImageType.Circle4, uaName: "-", svgPath: "../assets/top-image-types/circle-4.svg" },
+  { type: TopImageType.CircleCrossed, uaName: "Розрахунок/екіпаж", svgPath: "../assets/top-image-types/circle-crossed.svg" },
   { type: TopImageType.FilledRect, uaName: "FilledRect", svgPath: "../assets/top-image-types/filled-rect.svg" },
-  { type: TopImageType.Line1, uaName: "Line1", svgPath: "../assets/top-image-types/line-1.svg" },
-  { type: TopImageType.Line1UnderHat, uaName: "Line1UnderHat", svgPath: "../assets/top-image-types/line-1-under-hat.svg" },
-  { type: TopImageType.Line2, uaName: "Line2", svgPath: "../assets/top-image-types/line-2.svg" },
-  { type: TopImageType.Line2UnderHat, uaName: "Line2UnderHat", svgPath: "../assets/top-image-types/line-2-under-hat.svg" },
-  { type: TopImageType.Line3, uaName: "Line3", svgPath: "../assets/top-image-types/line-3.svg" },
-  { type: TopImageType.Line3UnderHat, uaName: "Line3UnderHat", svgPath: "../assets/top-image-types/line-3-under-hat.svg" },
+  { type: TopImageType.Line1, uaName: "Рота/батарея", svgPath: "../assets/top-image-types/line-1.svg" },
+  { type: TopImageType.Line1UnderHat, uaName: "Рота/батарея", svgPath: "../assets/top-image-types/line-1-under-hat.svg" },
+  { type: TopImageType.Line2, uaName: "Батальйон/дивізіон", svgPath: "../assets/top-image-types/line-2.svg" },
+  { type: TopImageType.Line2UnderHat, uaName: "Батальйон/дивізіон", svgPath: "../assets/top-image-types/line-2-under-hat.svg" },
+  { type: TopImageType.Line3, uaName: "Полк", svgPath: "../assets/top-image-types/line-3.svg" },
+  { type: TopImageType.Line3UnderHat, uaName: "Полк", svgPath: "../assets/top-image-types/line-3-under-hat.svg" },
 
-  { type: TopImageType.X1, uaName: "X1", svgPath: "../assets/top-image-types/x-1.svg" },
-  { type: TopImageType.X1UnderHat, uaName: "X1UnderHat", svgPath: "../assets/top-image-types/x-1-under-hat.svg" },
-  { type: TopImageType.X2, uaName: "X2", svgPath: "../assets/top-image-types/x-2.svg" },
-  { type: TopImageType.X2UnderHat, uaName: "X2UnderHat", svgPath: "../assets/top-image-types/x-2-under-hat.svg" },
-  { type: TopImageType.X3, uaName: "X3", svgPath: "../assets/top-image-types/x-3.svg" },
-  { type: TopImageType.X4, uaName: "X4", svgPath: "../assets/top-image-types/x-4.svg" },
-  { type: TopImageType.X5, uaName: "X5", svgPath: "../assets/top-image-types/x-5.svg" },
-  { type: TopImageType.X6, uaName: "X6", svgPath: "../assets/top-image-types/x-6.svg" },
+  { type: TopImageType.X1, uaName: "Бригада", svgPath: "../assets/top-image-types/x-1.svg" },
+  { type: TopImageType.X1UnderHat, uaName: "Бригада", svgPath: "../assets/top-image-types/x-1-under-hat.svg" },
+  { type: TopImageType.X2, uaName: "Дивізія", svgPath: "../assets/top-image-types/x-2.svg" },
+  { type: TopImageType.X2UnderHat, uaName: "Дивізія", svgPath: "../assets/top-image-types/x-2-under-hat.svg" },
+  { type: TopImageType.X3, uaName: "Корпус, ОТУ, МК, КМП", svgPath: "../assets/top-image-types/x-3.svg" },
+  { type: TopImageType.X4, uaName: "ОК, ОУВ, ПвК, Армія", svgPath: "../assets/top-image-types/x-4.svg" },
+  { type: TopImageType.X5, uaName: "Види та роди ЗС України, група армій", svgPath: "../assets/top-image-types/x-5.svg" },
+  { type: TopImageType.X6, uaName: "Збройні Сили України", svgPath: "../assets/top-image-types/x-6.svg" },
 ];
 
 export const mainImageTypes = [
-  { type: MainImageType.ThreeHorLines, uaName: "ThreeHorLines", svgPath: "../assets/division-types/3-hor-lines.svg" },
-  { type: MainImageType.BottomHillWithCandle, uaName: "BottomHillWithCandle", svgPath: "../assets/division-types/bottom-hill-with-candle.svg" },
-  { type: MainImageType.BottomHill, uaName: "BottomHill", svgPath: "../assets/division-types/bottom-hill.svg" },
-  { type: MainImageType.Empty, uaName: "Empty", svgPath: "../assets/division-types/empty.svg" },
-  { type: MainImageType.Oval, uaName: "Oval", svgPath: "../assets/division-types/oval.svg" },
-  { type: MainImageType.TopTwoArrows, uaName: "TopTwoArrows", svgPath: "../assets/division-types/top-two-arrows.svg" },
-  { type: MainImageType.Triangle, uaName: "Triangle", svgPath: "../assets/division-types/triangle.svg" },
+  { type: MainImageType.ThreeHorLines, uaName: "Три горизонтальні лінії", svgPath: "../assets/division-types/3-hor-lines.svg" },
+  { type: MainImageType.BottomHillWithCandle, uaName: "Гора з свічкою", svgPath: "../assets/division-types/bottom-hill-with-candle.svg" },
+  { type: MainImageType.BottomHill, uaName: "Нижня Гора", svgPath: "../assets/division-types/bottom-hill.svg" },
+  { type: MainImageType.Empty, uaName: "Пусто", svgPath: "../assets/division-types/empty.svg" },
+  { type: MainImageType.Oval, uaName: "Овал", svgPath: "../assets/division-types/oval.svg" },
+  { type: MainImageType.TopTwoArrows, uaName: "Дві стрілки зверху", svgPath: "../assets/division-types/top-two-arrows.svg" },
+  { type: MainImageType.Triangle, uaName: "Трикутник", svgPath: "../assets/division-types/triangle.svg" },
+  { type: MainImageType.Cross, uaName: "Дві діагональні лінії", svgPath: "../assets/division-types/cross.svg" },
+  { type: MainImageType.HorLine, uaName: "Горизонтальна лінія", svgPath: "../assets/division-types/hor-line.svg" },
+  { type: MainImageType.VertLine, uaName: "Вертикальна лінія", svgPath: "../assets/division-types/vert-line.svg" },
+  { type: MainImageType.BotFilledTriangle, uaName: "Трикутник знизу", svgPath: "../assets/division-types/bot-filled-triangle.svg" },
+  { type: MainImageType.Mechanised, uaName: "Механізований", svgPath: "../assets/division-types/mechanised.svg" },
+  { type: MainImageType.FilledCircle, uaName: "Зафарбований круг", svgPath: "../assets/division-types/filled-circle.svg" },
+  { type: MainImageType.Maintenance, uaName: "Обслуговування", svgPath: "../assets/division-types/maintenance.svg" },
+  { type: MainImageType.Retorts, uaName: "Реторти", svgPath: "../assets/division-types/retorts.svg" },
+  { type: MainImageType.Ew, uaName: "EW", svgPath: "../assets/division-types/ew.svg" },
 ];
 
 export interface DivisionGraphInfo {
@@ -193,10 +211,14 @@ export const defaultGroups = [
   { name: "Підрозділи ТхЗ, ТлЗ" },
 ];
 
-export const defaultRouteDataEx1: {
+export interface RoutesDto {
   routes: Route[];
   groups: Group[];
-} = {
+  routeName: string;
+  tableName: string;
+}
+
+export const defaultRouteDataEx1: RoutesDto = {
   routes: [
     {
       rows: [
@@ -280,12 +302,11 @@ export const defaultRouteDataEx1: {
     },
   ],
   groups: defaultGroups,
+  routeName: "ПОБУДОВА ПОХІДНОГО ПОРЯДКУ",
+  tableName: "НАЗВА ТАБЛИЦІ",
 };
 
-export const defaultRouteDataEx2: {
-  routes: Route[];
-  groups: Group[];
-} = {
+export const defaultRouteDataEx2: RoutesDto = {
   routes: [
     {
       rows: [
@@ -364,4 +385,6 @@ export const defaultRouteDataEx2: {
     },
   ],
   groups: defaultGroups,
+  routeName: "ПОБУДОВА ПОХІДНОГО ПОРЯДКУ",
+  tableName: "НАЗВА ТАБЛИЦІ",
 };

@@ -205,10 +205,10 @@ const Routes = ({ route, routeIndex, setFieldValue }: RoutesProps) => {
       </Box>
 
       <Box sx={{ mt: 2, mb: 2 }}>
-        <Typography variant="h5">Додатковий підрозділ</Typography>
+        <Typography variant="h5">Додатковий маршрут</Typography>
         <Stack spacing={2}>
           <TextField
-            label="Назва підрозділу"
+            label="Назва додаткового маршруту"
             value={route.additionalDivisionName}
             onChange={(e) => {
               setFieldValue(`routes[${routeIndex}].additionalDivisionName`, e.target.value);
@@ -271,6 +271,31 @@ const AmplificatorModal = ({
     <Dialog open={index !== null} onClose={handleModalClose} maxWidth="md" fullWidth>
       <DialogTitle>Редагувати деталі підрозділу</DialogTitle>
       <DialogContent>
+        <Autocomplete
+          value={topImageTypes.find((t) => t.type === row.topImageType) || null}
+          options={topImageTypes}
+          getOptionLabel={(option) => option.uaName}
+          renderOption={(props, option) => (
+            <Box component="li" sx={{ display: 'flex', alignItems: 'center' }} {...props}>
+              <img 
+                src={svgFromPath(option.svgPath) || ''} 
+                alt={option.uaName}
+                style={{ width: 24, height: 24, marginRight: 8 }}
+              />
+              {option.uaName}
+            </Box>
+          )}
+          onChange={(_, newValue) => {
+            setFieldValue(
+              `${editPath}.topImageType`,
+              newValue?.type || TopImageType.None
+            );
+          }}
+          renderInput={(params) => (
+            <TextField {...params} label="Ампліфікатор військового організму" />
+          )}
+        />
+
         <Stack spacing={2} sx={{ mt: 1 }}>
           <Stack direction="row" spacing={2}>
             <TextField
@@ -336,30 +361,6 @@ const AmplificatorModal = ({
           </Stack>
 
           <Autocomplete
-            value={topImageTypes.find((t) => t.type === row.topImageType) || null}
-            options={topImageTypes}
-            getOptionLabel={(option) => option.uaName}
-            renderOption={(props, option) => (
-              <Box component="li" sx={{ display: 'flex', alignItems: 'center' }} {...props}>
-                <img 
-                  src={svgFromPath(option.svgPath) || ''} 
-                  alt={option.uaName}
-                  style={{ width: 24, height: 24, marginRight: 8 }}
-                />
-                {option.uaName}
-              </Box>
-            )}
-            onChange={(_, newValue) => {
-              setFieldValue(
-                `${editPath}.topImageType`,
-                newValue?.type || TopImageType.None
-              );
-            }}
-            renderInput={(params) => (
-              <TextField {...params} label="Тип верхнього зображення" />
-            )}
-          />
-          <Autocomplete
             multiple
             value={mainImageTypes.filter((t) =>
               row.mainImageTypes?.includes(t.type)
@@ -383,7 +384,7 @@ const AmplificatorModal = ({
               );
             }}
             renderInput={(params) => (
-              <TextField {...params} label="Типи основних зображень" />
+              <TextField {...params} label="Основні зображення" />
             )}
           />
 

@@ -13,13 +13,24 @@ import {
   TableBody,
   DialogActions,
   Stack,
+  Typography,
+  TextField,
+  Box,
 } from "@mui/material";
 import { AdapterLuxon } from "@mui/x-date-pickers/AdapterLuxon";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 
 import { Grid } from "@mui/material";
 import { DateTime } from "luxon";
-import { defaultElem, defaultGroups, defaultRouteDataEx1, defaultRouteDataEx2, Group, Route } from "../types/types";
+import {
+  defaultElem,
+  defaultGroups,
+  defaultRouteDataEx1,
+  defaultRouteDataEx2,
+  Group,
+  Route,
+  RoutesDto,
+} from "../types/types";
 import CanvasWithExport from "./CanvasWithExport";
 import GroupsEditor from "./GroupsEditor";
 import Routes from "./Routes";
@@ -80,11 +91,8 @@ const AppContainer = () => {
     });
   }, []);
 
-  const formik = useFormik<{
-    routes: Route[];
-    groups: Group[];
-  }>({
-    initialValues: defaultRouteDataEx2,
+  const formik = useFormik<RoutesDto>({
+    initialValues: defaultRouteDataEx1,
     onSubmit: (values) => {
       console.log(values);
     },
@@ -92,17 +100,14 @@ const AppContainer = () => {
 
   const processedRoutes = useMemo(() => {
     return formik.values.routes.map((route) => {
-      const depthOfFullConvoy = route.rows.reduce(
-        (acc, row) => {
-          const depthOfConvoy = calculateDepthOfConvoy(
-            row.numOfVehicles,
-            row.distBetweenVehicles,
-          );
+      const depthOfFullConvoy = route.rows.reduce((acc, row) => {
+        const depthOfConvoy = calculateDepthOfConvoy(
+          row.numOfVehicles,
+          row.distBetweenVehicles
+        );
 
-          return Number((acc + depthOfConvoy + row.distToNextConvoy).toFixed(5));
-        },
-        0
-      );
+        return Number((acc + depthOfConvoy + row.distToNextConvoy).toFixed(5));
+      }, 0);
 
       return {
         ...route,
@@ -116,27 +121,31 @@ const AppContainer = () => {
   }, [formik.values.routes]);
 
   const handleSaveToJson = useCallback(() => {
-    const dataStr = JSON.stringify(formik.values, (key, value) => {
-      // Special handling for DateTime objects
-      if (value instanceof DateTime) {
-        return value.toISO();
-      }
-      return value;
-    }, 2);
-    
-    const blob = new Blob([dataStr], { type: 'application/json' });
+    const dataStr = JSON.stringify(
+      formik.values,
+      (key, value) => {
+        // Special handling for DateTime objects
+        if (value instanceof DateTime) {
+          return value.toISO();
+        }
+        return value;
+      },
+      2
+    );
+
+    const blob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.download = 'formData.json';
+    const link = document.createElement("a");
+    link.download = "formData.json";
     link.href = url;
     link.click();
     URL.revokeObjectURL(url);
   }, [formik.values]);
 
   const handleLoadFromJson = useCallback(() => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'application/json';
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "application/json";
     input.onchange = (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
@@ -146,15 +155,18 @@ const AppContainer = () => {
         try {
           const data = JSON.parse(e.target?.result as string, (key, value) => {
             // Convert ISO strings back to DateTime objects for specific fields
-            if (typeof value === 'string' && value.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/)) {
+            if (
+              typeof value === "string" &&
+              value.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/)
+            ) {
               return DateTime.fromISO(value);
             }
             return value;
           });
           formik.setValues(data);
         } catch (error) {
-          console.error('Error parsing JSON:', error);
-          alert('Error loading file. Please ensure it is a valid JSON file.');
+          console.error("Error parsing JSON:", error);
+          alert("Error loading file. Please ensure it is a valid JSON file.");
         }
       };
       reader.readAsText(file);
@@ -165,6 +177,22 @@ const AppContainer = () => {
   return (
     <LocalizationProvider dateAdapter={AdapterLuxon}>
       <Grid container direction="column" spacing={2} sx={{ p: 3 }}>
+        <Grid item>
+          <TextField
+            label="Назва малюнку маршрутів"
+            value={formik.values.routeName}
+            onChange={(e) => {
+              formik.setFieldValue("routeName", e.target.value);
+            }}
+          />
+          <TextField
+            label="Назва таблиці"
+            value={formik.values.tableName}
+            onChange={(e) => {
+              formik.setFieldValue("tableName", e.target.value);
+            }}
+          />
+        </Grid>
         <Grid item>
           <GroupsEditor
             groups={formik.values.groups}
@@ -224,7 +252,10 @@ const AppContainer = () => {
           </Stack>
         </Grid>
         <Grid item>
-          <CanvasWithExport routes={processedRoutes} />
+          <CanvasWithExport
+            routes={processedRoutes}
+            routeName={formik.values.routeName}
+          />
         </Grid>
 
         <PreviewModal
@@ -232,7 +263,16 @@ const AppContainer = () => {
           onClose={() => setPreviewOpen(false)}
           processedRoutes={processedRoutes}
           onExport={handleExportTable}
+          tableName={formik.values.tableName}
         />
+        <Grid
+          item
+          sx={{ width: "100%", mt: 4, borderTop: "1px solid #ccc", py: 2 }}
+        >
+          <Typography variant="body2" color="text.secondary" align="center">
+            © {new Date().getFullYear()} playstone@ukr.net All rights reserved.
+          </Typography>
+        </Grid>
       </Grid>
     </LocalizationProvider>
   );
@@ -243,6 +283,7 @@ interface PreviewModalProps {
   onClose: () => void;
   processedRoutes: Route[];
   onExport: () => void;
+  tableName: string;
 }
 
 const PreviewModal = ({
@@ -250,6 +291,7 @@ const PreviewModal = ({
   onClose,
   processedRoutes,
   onExport,
+  tableName,
 }: PreviewModalProps) => (
   <Dialog
     open={open}
@@ -260,96 +302,105 @@ const PreviewModal = ({
   >
     <DialogTitle>Попередній перегляд таблиці</DialogTitle>
     <DialogContent>
-      <TableContainer id="preview-table">
-        <Table>
-          <TableHead>
-            <TableRow>
-              {Object.entries(columnNames).map(([key, columnName]) => (
-                <TableCell
-                  key={key}
-                  sx={{
-                    border: "2px solid black",
-                  }}
-                >
-                  {columnName}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {processedRoutes
-              .map((route, routeIndex) => {
-                return (
-                  <>
-                    <TableRow>
-                      <TableCell
-                        colSpan={Object.keys(columnNames).length}
-                        sx={{
-                          padding: "8px",
-                          border: "2px solid black",
-                          textAlign: "center",
-                          fontSize: "18px",
-                        }}
-                      >
-                        Маршрут {routeIndex + 1}
-                      </TableCell>
-                    </TableRow>
-                    {route.rows.map((row, rowIndex) => (
-                      <TableRow key={rowIndex}>
-                        {Object.entries(row)
-                          .filter(
-                            ([key]) =>
-                              ![
-                                "leftBottomAmplificator",
-                                "rightBottomAmplificator",
-                                "centerBottomAmplificator",
-                                "leftTopAmplificator",
-                                "rightTopAmplificator",
-                                "centerTopAmplificator",
-                                "leftAmplificator",
-                                "rightAmplificator",
-                                "centerAmplificator",
-                                "topImageType",
-                                "mainImageTypes",
-                                "isUplifted",
-                                "additionalDivision",
-                              ].includes(key)
-                          )
-                          .map(([key, value], colIndex) => (
-                            <TableCell
-                              key={`${rowIndex}-${colIndex}`}
-                              sx={{
-                                padding: "5px",
-                                border: "2px solid black",
-                                textAlign: "center",
-                              }}
-                            >
-                              {(() => {
-                                if (
-                                  [
-                                    "timeToPassPointOfDeparture_convoyStart",
-                                    "timeToPassPointOfDeparture_convoyEnd",
-                                    "timeOfStartOfMovement",
-                                    "timeOfEndOfMovement",
-                                  ].includes(key)
-                                ) {
-                                  return (value as DateTime).toFormat(
-                                    "HH год. mm хв. dd.MM.yyyy"
-                                  );
-                                }
-                                return value;
-                              })()}
-                            </TableCell>
-                          ))}
+      <Box  id="preview-table">
+        <Typography variant="h5" align="center">
+          {tableName}
+        </Typography>
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ border: "2px solid black" }}>№</TableCell>
+                {Object.entries(columnNames).map(([key, columnName]) => (
+                  <TableCell
+                    key={key}
+                    sx={{
+                      border: "2px solid black",
+                    }}
+                  >
+                    {columnName}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {processedRoutes
+                .map((route, routeIndex) => {
+                  return (
+                    <>
+                      <TableRow>
+                        <TableCell
+                          colSpan={Object.keys(columnNames).length}
+                          sx={{
+                            padding: "8px",
+                            border: "2px solid black",
+                            textAlign: "center",
+                            fontSize: "18px",
+                          }}
+                        >
+                          Маршрут {routeIndex + 1}
+                        </TableCell>
                       </TableRow>
-                    ))}
-                  </>
-                );
-              })
-              .flat()}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                      {route.rows.map((row, rowIndex) => (
+                        <TableRow key={rowIndex}>
+                          <TableCell sx={{ border: "2px solid black", textAlign: "center" }}>
+                            {rowIndex + 1}.
+                          </TableCell>
+                          {Object.entries(row)
+                            .filter(
+                              ([key]) =>
+                                ![
+                                  "leftBottomAmplificator",
+                                  "rightBottomAmplificator",
+                                  "centerBottomAmplificator",
+                                  "leftTopAmplificator",
+                                  "rightTopAmplificator",
+                                  "centerTopAmplificator",
+                                  "leftAmplificator",
+                                  "rightAmplificator",
+                                  "centerAmplificator",
+                                  "topImageType",
+                                  "mainImageTypes",
+                                  "isUplifted",
+                                  "additionalDivision",
+                                ].includes(key)
+                            )
+                            .map(([key, value], colIndex) => (
+                              <TableCell
+                                key={`${rowIndex}-${colIndex}`}
+                                sx={{
+                                  padding: "5px",
+                                  border: "2px solid black",
+                                  textAlign: "center",
+                                }}
+                              >
+                                {(() => {
+                                  if (
+                                    [
+                                      "timeToPassPointOfDeparture_convoyStart",
+                                      "timeToPassPointOfDeparture_convoyEnd",
+                                      "timeOfStartOfMovement",
+                                      "timeOfEndOfMovement",
+                                    ].includes(key)
+                                  ) {
+                                    return (value as DateTime).toFormat(
+                                      "HH год. mm хв. dd.MM.yyyy"
+                                    );
+                                  }
+                                  return value;
+                                })()}
+                              </TableCell>
+                            ))}
+                        </TableRow>
+                      ))}
+                    </>
+                  );
+                })
+                .flat()}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
     </DialogContent>
     <DialogActions>
       <Button onClick={onClose}>Закрити</Button>
