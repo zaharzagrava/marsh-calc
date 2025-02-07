@@ -173,7 +173,7 @@ const Routes = ({ route, routeIndex, setFieldValue }: RoutesProps) => {
         </Table>
       </TableContainer>
       <Button variant="contained" onClick={handleAddRow}>
-        Додати рядок
+        Додати колону
       </Button>
 
       <Box sx={{ mt: 2, mb: 2 }}>

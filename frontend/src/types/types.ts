@@ -224,93 +224,620 @@ export interface RoutesDto {
 }
 
 export const defaultRouteDataEx1: RoutesDto = {
-  routes: [
+  "routes": [
     {
-      rows: [
-        { ...defaultElem,
-          numOfVehicles: 25,
-          distToNextConvoy: 0,
-          distBetweenConvoyHeadAndInitialPointOfDeparture: 7,
+      "rows": [
+        {
+          "leftBottomAmplificator": "1",
+          "rightBottomAmplificator": "2",
+          "centerBottomAmplificator": "",
+          "leftTopAmplificator": "",
+          "rightTopAmplificator": "ГПЗ",
+          "centerTopAmplificator": "",
+          "leftAmplificator": "",
+          "rightAmplificator": "",
+          "centerAmplificator": "",
+          "topImageType": "line-1",
+          "mainImageTypes": [
+            "empty",
+            "cross",
+            "oval"
+          ],
+          "isUplifted": false,
+          "unitName": "1мр ГПЗ",
+          "numOfVehicles": 25,
+          "distBetweenVehicles": 0.05,
+          "distToNextConvoy": 2,
+          "distBetweenConvoyHeadAndInitialPointOfDeparture": 7,
+          "speedOfExtraction": 15,
+          "speed": 25,
+          "depthOfConvoy": 1.2,
         },
-        { ...defaultElem,
-          numOfVehicles: 61,
-          distToNextConvoy: 5,
-          distBetweenConvoyHeadAndInitialPointOfDeparture: 7.5,
+        {
+          "leftBottomAmplificator": "2",
+          "rightBottomAmplificator": "",
+          "centerBottomAmplificator": "ОКП",
+          "leftTopAmplificator": "",
+          "rightTopAmplificator": "",
+          "centerTopAmplificator": "",
+          "leftAmplificator": "",
+          "rightAmplificator": "",
+          "centerAmplificator": "",
+          "topImageType": "x-1",
+          "mainImageTypes": [
+            "empty",
+            "cross",
+            "oval"
+          ],
+          "isUplifted": true,
+          "unitName": "ОКП",
+          "numOfVehicles": 61,
+          "distBetweenVehicles": 0.05,
+          "distToNextConvoy": 5,
+          "distBetweenConvoyHeadAndInitialPointOfDeparture": 7.5,
+          "speedOfExtraction": 15,
+          "speed": 25,
+          "depthOfConvoy": 2.7,
         },
-        { ...defaultElem,
-          numOfVehicles: 39,
-          distToNextConvoy: 2,
-          distBetweenConvoyHeadAndInitialPointOfDeparture: 8,
+        {
+          "leftBottomAmplificator": "2",
+          "rightBottomAmplificator": "",
+          "centerBottomAmplificator": "",
+          "leftTopAmplificator": "",
+          "rightTopAmplificator": "",
+          "centerTopAmplificator": "",
+          "leftAmplificator": "",
+          "rightAmplificator": "",
+          "centerAmplificator": "",
+          "topImageType": "line-2",
+          "mainImageTypes": [
+            "empty",
+            "cross",
+            "oval"
+          ],
+          "isUplifted": false,
+          "unitName": "2мб",
+          "numOfVehicles": 39,
+          "distBetweenVehicles": 0.05,
+          "distToNextConvoy": 2,
+          "distBetweenConvoyHeadAndInitialPointOfDeparture": 8,
+          "speedOfExtraction": 15,
+          "speed": 25,
+          "depthOfConvoy": 1.9,
         },
-        { ...defaultElem,
-          numOfVehicles: 122,
-          distToNextConvoy: 2,
-          distBetweenConvoyHeadAndInitialPointOfDeparture: 8.5,
+        {
+          "leftBottomAmplificator": "1",
+          "rightBottomAmplificator": "",
+          "centerBottomAmplificator": "",
+          "leftTopAmplificator": "",
+          "rightTopAmplificator": "",
+          "centerTopAmplificator": "",
+          "leftAmplificator": "",
+          "rightAmplificator": "",
+          "centerAmplificator": "",
+          "topImageType": "line-2",
+          "mainImageTypes": [
+            "empty",
+            "oval",
+            "filled-circle"
+          ],
+          "isUplifted": false,
+          "unitName": "1адн",
+          "numOfVehicles": 122,
+          "distBetweenVehicles": 0.05,
+          "distToNextConvoy": 2,
+          "distBetweenConvoyHeadAndInitialPointOfDeparture": 8.5,
+          "speedOfExtraction": 15,
+          "speed": 25,
+          "depthOfConvoy": 6.05,
         },
-        { ...defaultElem,
-          numOfVehicles: 37,
-          distToNextConvoy: 2,
-          distBetweenConvoyHeadAndInitialPointOfDeparture: 8,
+        {
+          "leftBottomAmplificator": "зрадн",
+          "rightBottomAmplificator": "",
+          "centerBottomAmplificator": "",
+          "leftTopAmplificator": "",
+          "rightTopAmplificator": "",
+          "centerTopAmplificator": "",
+          "leftAmplificator": "",
+          "rightAmplificator": "",
+          "centerAmplificator": "",
+          "topImageType": "line-2",
+          "mainImageTypes": [
+            "empty",
+            "bottom-hill-with-candle"
+          ],
+          "isUplifted": false,
+          "unitName": "зрадн",
+          "numOfVehicles": 37,
+          "distBetweenVehicles": 0.05,
+          "distToNextConvoy": 2,
+          "distBetweenConvoyHeadAndInitialPointOfDeparture": 8,
+          "speedOfExtraction": 15,
+          "speed": 25,
+          "depthOfConvoy": 1.8,
         },
-        { ...defaultElem,
-          numOfVehicles: 37,
-          distToNextConvoy: 2,
-          distBetweenConvoyHeadAndInitialPointOfDeparture: 7,
+        {
+          "leftBottomAmplificator": "птадн",
+          "rightBottomAmplificator": "",
+          "centerBottomAmplificator": "",
+          "leftTopAmplificator": "",
+          "rightTopAmplificator": "",
+          "centerTopAmplificator": "",
+          "leftAmplificator": "",
+          "rightAmplificator": "",
+          "centerAmplificator": "",
+          "topImageType": "line-2",
+          "mainImageTypes": [
+            "empty",
+            "triangle"
+          ],
+          "isUplifted": false,
+          "unitName": "птадн",
+          "numOfVehicles": 37,
+          "distBetweenVehicles": 0.05,
+          "distToNextConvoy": 2,
+          "distBetweenConvoyHeadAndInitialPointOfDeparture": 7,
+          "speedOfExtraction": 15,
+          "speed": 25,
+          "depthOfConvoy": 1.8,
         },
-        { ...defaultElem,
-          numOfVehicles: 25,
-          distToNextConvoy: 2,
-          distBetweenConvoyHeadAndInitialPointOfDeparture: 7.5,
+        {
+          "leftBottomAmplificator": "2",
+          "rightBottomAmplificator": "",
+          "centerBottomAmplificator": "",
+          "leftTopAmplificator": "",
+          "rightTopAmplificator": "",
+          "centerTopAmplificator": "",
+          "leftAmplificator": "",
+          "rightAmplificator": "",
+          "centerAmplificator": "",
+          "topImageType": "line-2",
+          "mainImageTypes": [
+            "empty",
+            "filled-circle",
+            "oval"
+          ],
+          "isUplifted": false,
+          "unitName": "2адн",
+          "numOfVehicles": 25,
+          "distBetweenVehicles": 0.05,
+          "distToNextConvoy": 2,
+          "distBetweenConvoyHeadAndInitialPointOfDeparture": 7.5,
+          "speedOfExtraction": 15,
+          "speed": 25,
+          "depthOfConvoy": 1.2,
         },
-        { ...defaultElem,
-          numOfVehicles: 45,
-          distToNextConvoy: 1,
-          distBetweenConvoyHeadAndInitialPointOfDeparture: 8,
+        {
+          "leftBottomAmplificator": "",
+          "rightBottomAmplificator": "",
+          "centerBottomAmplificator": "",
+          "leftTopAmplificator": "",
+          "rightTopAmplificator": "",
+          "centerTopAmplificator": "ГІЗ",
+          "leftAmplificator": "",
+          "rightAmplificator": "",
+          "centerAmplificator": "",
+          "topImageType": "line-2",
+          "mainImageTypes": [
+            "empty",
+            "mechanised"
+          ],
+          "isUplifted": false,
+          "unitName": "ГІЗ",
+          "numOfVehicles": 45,
+          "distBetweenVehicles": 0.05,
+          "distToNextConvoy": 1,
+          "distBetweenConvoyHeadAndInitialPointOfDeparture": 8,
+          "speedOfExtraction": 15,
+          "speed": 25,
+          "depthOfConvoy": 2.2,
         },
-        { ...defaultElem,
-          numOfVehicles: 7,
-          distToNextConvoy: 1,
-          distBetweenConvoyHeadAndInitialPointOfDeparture: 8.5,
+        {
+          "leftBottomAmplificator": "",
+          "rightBottomAmplificator": "",
+          "centerBottomAmplificator": "ТКП",
+          "leftTopAmplificator": "",
+          "rightTopAmplificator": "",
+          "centerTopAmplificator": "",
+          "leftAmplificator": "",
+          "rightAmplificator": "",
+          "centerAmplificator": "",
+          "topImageType": "x-1",
+          "mainImageTypes": [
+            "empty",
+            "cross"
+          ],
+          "isUplifted": true,
+          "unitName": "ТКП",
+          "numOfVehicles": 7,
+          "distBetweenVehicles": 0.05,
+          "distToNextConvoy": 1,
+          "distBetweenConvoyHeadAndInitialPointOfDeparture": 8.5,
+          "speedOfExtraction": 15,
+          "speed": 25,
+          "depthOfConvoy": 0.3,
         },
-        { ...defaultElem,
-          numOfVehicles: 32,
-          distToNextConvoy: 2,
-          distBetweenConvoyHeadAndInitialPointOfDeparture: 8,
-        },
+        {
+          "leftBottomAmplificator": "ррвб",
+          "rightBottomAmplificator": "",
+          "centerBottomAmplificator": "",
+          "leftTopAmplificator": "",
+          "rightTopAmplificator": "",
+          "centerTopAmplificator": "",
+          "leftAmplificator": "",
+          "rightAmplificator": "",
+          "centerAmplificator": "",
+          "topImageType": "line-2",
+          "mainImageTypes": [
+            "empty",
+            "maintenance"
+          ],
+          "isUplifted": false,
+          "unitName": "рвб",
+          "numOfVehicles": 32,
+          "distBetweenVehicles": 0.05,
+          "distToNextConvoy": 2,
+          "distBetweenConvoyHeadAndInitialPointOfDeparture": 8,
+          "speedOfExtraction": 15,
+          "speed": 25,
+          "depthOfConvoy": 1.55,
+        }
       ],
-      routeData: {
-        directiveTimeOfEndOfMovement: DateTime.now().set({
+      "routeData": {
+        "directiveTimeOfEndOfMovement":DateTime.now().set({
           day: 24,
-          month: 10,
-          year: 2024,
-          hour: 6,
+          month: 9,
+          year: 2025,
+          hour: 7,
           minute: 0,
           second: 0,
           millisecond: 0,
         }),
-        depthOfDestinationArea: 17,
-        stops: [{ duration: 2, name: "Пункт регулювання 1", distance: 10 }],
-        lengthOfRoute: 250,
-        depthOfFullConvoy: 0,
+        "depthOfDestinationArea": 17,
+        "stops": [
+          {
+            "duration": 1,
+            "name": "Пункт регулювання 1",
+            "distance": 50
+          },
+          {
+            "duration": 1,
+            "distance": 100
+          }
+        ],
+        "lengthOfRoute": 160,
+        "depthOfFullConvoy": 0
       },
-      groupsInfo: [
+      "groupsInfo": [
         {
-          name: defaultGroups[0].name,
-          rows: [0, 1, 2],
+          "name": "Похідна охорона",
+          "rows": [
+            0
+          ]
         },
         {
-          name: defaultGroups[1].name,
-          rows: [3, 4, 5, 6, 7, 8, 9],
+          "name": "Колона головних сил",
+          "rows": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
         },
+        {
+          "name": "Підрозділи ТхЗ, ТлЗ, МедЗ",
+          "rows": [
+            8,
+            9
+          ]
+        }
       ],
-      topAdditionalDivisionName: "",
-      bottomAdditionalDivisionName: "",
+      "topAdditionalDivisionName": "",
+      "bottomAdditionalDivisionName": ""
     },
+    {
+      "rows": [
+        {
+          "leftBottomAmplificator": "2",
+          "rightBottomAmplificator": "",
+          "centerBottomAmplificator": "",
+          "leftTopAmplificator": "",
+          "rightTopAmplificator": "",
+          "centerTopAmplificator": "",
+          "leftAmplificator": "",
+          "rightAmplificator": "",
+          "centerAmplificator": "",
+          "topImageType": "line-2",
+          "mainImageTypes": [
+            "empty",
+            "cross",
+            "oval"
+          ],
+          "isUplifted": true,
+          "unitName": "1мб аванг",
+          "numOfVehicles": 110,
+          "distBetweenVehicles": 0.05,
+          "distToNextConvoy": 2,
+          "distBetweenConvoyHeadAndInitialPointOfDeparture": 7.8,
+          "speedOfExtraction": 15,
+          "speed": 25,
+          "depthOfConvoy": 5.45,
+        },
+        {
+          "leftBottomAmplificator": "2",
+          "rightBottomAmplificator": "",
+          "centerBottomAmplificator": "ЗКП",
+          "leftTopAmplificator": "",
+          "rightTopAmplificator": "",
+          "centerTopAmplificator": "",
+          "leftAmplificator": "",
+          "rightAmplificator": "",
+          "centerAmplificator": "",
+          "topImageType": "x-1",
+          "mainImageTypes": [
+            "empty",
+            "cross",
+            "oval"
+          ],
+          "isUplifted": true,
+          "unitName": "ЗКП",
+          "numOfVehicles": 13,
+          "distBetweenVehicles": 0.05,
+          "distToNextConvoy": 15,
+          "distBetweenConvoyHeadAndInitialPointOfDeparture": 7.9,
+          "speedOfExtraction": 15,
+          "speed": 25,
+          "depthOfConvoy": 0.6,
+        },
+        {
+          "leftBottomAmplificator": "3",
+          "rightBottomAmplificator": "",
+          "centerBottomAmplificator": "",
+          "leftTopAmplificator": "",
+          "rightTopAmplificator": "",
+          "centerTopAmplificator": "",
+          "leftAmplificator": "",
+          "rightAmplificator": "",
+          "centerAmplificator": "",
+          "topImageType": "line-2",
+          "mainImageTypes": [
+            "empty",
+            "cross",
+            "oval"
+          ],
+          "isUplifted": false,
+          "unitName": "3мб",
+          "numOfVehicles": 95,
+          "distBetweenVehicles": 0.05,
+          "distToNextConvoy": 2,
+          "distBetweenConvoyHeadAndInitialPointOfDeparture": 8.3,
+          "speedOfExtraction": 15,
+          "speed": 25,
+          "depthOfConvoy": 4.7,
+        },
+        {
+          "leftBottomAmplificator": "тб",
+          "rightBottomAmplificator": "",
+          "centerBottomAmplificator": "",
+          "leftTopAmplificator": "",
+          "rightTopAmplificator": "",
+          "centerTopAmplificator": "",
+          "leftAmplificator": "",
+          "rightAmplificator": "",
+          "centerAmplificator": "",
+          "topImageType": "line-2",
+          "mainImageTypes": [
+            "empty",
+            "oval"
+          ],
+          "isUplifted": false,
+          "unitName": "тб",
+          "numOfVehicles": 68,
+          "distBetweenVehicles": 0.05,
+          "distToNextConvoy": 2,
+          "distBetweenConvoyHeadAndInitialPointOfDeparture": 8,
+          "speedOfExtraction": 15,
+          "speed": 25,
+          "depthOfConvoy": 3.35,
+        },
+        {
+          "leftBottomAmplificator": "заб",
+          "rightBottomAmplificator": "",
+          "centerBottomAmplificator": "",
+          "leftTopAmplificator": "",
+          "rightTopAmplificator": "",
+          "centerTopAmplificator": "",
+          "leftAmplificator": "",
+          "rightAmplificator": "",
+          "centerAmplificator": "",
+          "topImageType": TopImageType,
+          "mainImageTypes": [
+            "empty",
+            "bottom-hill-with-candle"
+          ],
+          "isUplifted": false,
+          "unitName": "заб",
+          "numOfVehicles": 36,
+          "distBetweenVehicles": 0.05,
+          "distToNextConvoy": 1,
+          "distBetweenConvoyHeadAndInitialPointOfDeparture": 7,
+          "speedOfExtraction": 15,
+          "speed": 25,
+          "depthOfConvoy": 1.75,
+        },
+        {
+          "leftBottomAmplificator": "реадн",
+          "rightBottomAmplificator": "",
+          "centerBottomAmplificator": "",
+          "leftTopAmplificator": "",
+          "rightTopAmplificator": "",
+          "centerTopAmplificator": "",
+          "leftAmplificator": "",
+          "rightAmplificator": "",
+          "centerAmplificator": "",
+          "topImageType": "line-2",
+          "mainImageTypes": [
+            "empty",
+            "filled-circle",
+            "top-two-arrows"
+          ],
+          "isUplifted": false,
+          "unitName": "реадн",
+          "numOfVehicles": 42,
+          "distBetweenVehicles": 0.05,
+          "distToNextConvoy": 1,
+          "distBetweenConvoyHeadAndInitialPointOfDeparture": 7.5,
+          "speedOfExtraction": 15,
+          "speed": 25,
+          "depthOfConvoy": 2.05,
+        },
+        {
+          "leftBottomAmplificator": "рреб",
+          "rightBottomAmplificator": "",
+          "centerBottomAmplificator": "",
+          "leftTopAmplificator": "",
+          "rightTopAmplificator": "",
+          "centerTopAmplificator": "",
+          "leftAmplificator": "",
+          "rightAmplificator": "",
+          "centerAmplificator": "",
+          "topImageType": "line-1",
+          "mainImageTypes": [
+            "empty",
+            "ew"
+          ],
+          "isUplifted": false,
+          "unitName": "рреб",
+          "numOfVehicles": 26,
+          "distBetweenVehicles": 0.05,
+          "distToNextConvoy": 1,
+          "distBetweenConvoyHeadAndInitialPointOfDeparture": 8,
+          "speedOfExtraction": 15,
+          "speed": 25,
+          "depthOfConvoy": 1.25,
+        },
+        {
+          "leftBottomAmplificator": "ррхбз",
+          "rightBottomAmplificator": "",
+          "centerBottomAmplificator": "",
+          "leftTopAmplificator": "",
+          "rightTopAmplificator": "",
+          "centerTopAmplificator": "",
+          "leftAmplificator": "",
+          "rightAmplificator": "",
+          "centerAmplificator": "",
+          "topImageType": "line-1",
+          "mainImageTypes": [
+            "empty",
+            "retorts"
+          ],
+          "isUplifted": false,
+          "unitName": "ррхбз",
+          "numOfVehicles": 24,
+          "distBetweenVehicles": 0.05,
+          "distToNextConvoy": 1,
+          "distBetweenConvoyHeadAndInitialPointOfDeparture": 8.5,
+          "speedOfExtraction": 15,
+          "speed": 25,
+          "depthOfConvoy": 1.15,
+        },
+        {
+          "leftBottomAmplificator": "бмз",
+          "rightBottomAmplificator": "",
+          "centerBottomAmplificator": "",
+          "leftTopAmplificator": "",
+          "rightTopAmplificator": "",
+          "centerTopAmplificator": "",
+          "leftAmplificator": "",
+          "rightAmplificator": "",
+          "centerAmplificator": "",
+          "topImageType": "line-2",
+          "mainImageTypes": [
+            "empty"
+          ],
+          "isUplifted": false,
+          "unitName": "бмз",
+          "numOfVehicles": 115,
+          "distBetweenVehicles": 0.05,
+          "distToNextConvoy": 1,
+          "distBetweenConvoyHeadAndInitialPointOfDeparture": 8,
+          "speedOfExtraction": 15,
+          "speed": 25,
+          "depthOfConvoy": 5.7,
+        }
+      ],
+      "routeData": {
+        "directiveTimeOfEndOfMovement": DateTime.now().set({
+          day: 24,
+          month: 9,
+          year: 2025,
+          hour: 7,
+          minute: 0,
+          second: 0,
+          millisecond: 0,
+        }),
+        "depthOfDestinationArea": 17,
+        "stops": [
+          {
+            "duration": 1,
+            "name": "Пункт регулювання 1",
+            "distance": 50
+          },
+          {
+            "duration": 1,
+            "distance": 100
+          }
+        ],
+        "lengthOfRoute": 172,
+        "depthOfFullConvoy": 0
+      },
+      "groupsInfo": [
+        {
+          "name": "Похідна охорона",
+          "rows": [
+            0
+          ]
+        },
+        {
+          "name": "Колона головних сил",
+          "rows": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "name": "Підрозділи ТхЗ, ТлЗ, МедЗ",
+          "rows": [
+            8
+          ]
+        }
+      ],
+      "topAdditionalDivisionName": "",
+      "bottomAdditionalDivisionName": ""
+    }
   ],
-  groups: defaultGroups,
-  routeName: "Похідний поряднок 2 омбр",
-  tableName: "Таблиця маршу",
-};
+  "groups": [
+    {
+      "name": "Похідна охорона"
+    },
+    {
+      "name": "Колона головних сил"
+    },
+    {
+      "name": "Підрозділи ТхЗ, ТлЗ, МедЗ"
+    }
+  ],
+  "routeName": "Похідний порядок 2 омбр",
+  "tableName": "Таблиця маршу 2 омбр"
+} as any;
 
 export const defaultRouteDataEx2: RoutesDto = {
   routes: [
