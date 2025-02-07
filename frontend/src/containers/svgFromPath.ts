@@ -17,6 +17,8 @@ import FilledCircleSvg from "../assets/division-types/filled-circle.svg";
 import MaintenanceSvg from "../assets/division-types/maintenance.svg";
 import RetortsSvg from "../assets/division-types/retorts.svg";
 import EwSvg from "../assets/division-types/ew.svg";
+import BotHorLineSvg from "../assets/division-types/bot-hor-line.svg";
+import ThreeWavesFacingBotSvg from "../assets/division-types/3-waves-facing-bot.svg";
 
 // Top image types
 
@@ -95,7 +97,9 @@ const svgFromPath = (path: string | undefined) => {
     case "../assets/division-types/maintenance.svg": return MaintenanceSvg;
     case "../assets/division-types/retorts.svg": return RetortsSvg;
     case "../assets/division-types/ew.svg": return EwSvg;
-    
+    case "../assets/division-types/bot-hor-line.svg": return BotHorLineSvg;
+    case "../assets/division-types/3-waves-facing-bot.svg": return ThreeWavesFacingBotSvg;
+
     default: return null;
   }
 }

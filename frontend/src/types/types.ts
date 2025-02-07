@@ -57,6 +57,8 @@ export enum MainImageType {
   Maintenance = "maintenance",
   Retorts = "retorts",
   Ew = "ew",
+  BotHorLine = "bot-hor-line",
+  ThreeWavesFacingBot = "3-waves-facing-bot",
 }
 
 export const defaultElemGraphInfo: DivisionGraphInfo = {
@@ -137,6 +139,8 @@ export const mainImageTypes = [
   { type: MainImageType.Maintenance, uaName: "Обслуговування", svgPath: "../assets/division-types/maintenance.svg" },
   { type: MainImageType.Retorts, uaName: "Реторти", svgPath: "../assets/division-types/retorts.svg" },
   { type: MainImageType.Ew, uaName: "EW", svgPath: "../assets/division-types/ew.svg" },
+  { type: MainImageType.BotHorLine, uaName: "Горизонтальна лінія знизу", svgPath: "../assets/division-types/bot-hor-line.svg" },
+  { type: MainImageType.ThreeWavesFacingBot, uaName: "Три хвилі знизу", svgPath: "../assets/division-types/3-waves-facing-bot.svg" },
 ];
 
 export interface DivisionGraphInfo {
