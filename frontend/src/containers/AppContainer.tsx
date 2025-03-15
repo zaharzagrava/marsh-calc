@@ -65,6 +65,7 @@ export const columnNames = {
 
   depthOfConvoy: "Глибина колони (км.)",
   depthOfDestinationArea: "Глибина району призначення (км.)",
+  distToDestinationArea: "Відстань від району призначення до вихідного пункту (км.)",
   timeToPassPointOfDeparture_convoyStart:
     "Час проходження вихідного пункту (Голова колонни) (год. хв.)",
   timeToPassPointOfDeparture_convoyEnd:

@@ -28,7 +28,7 @@ export const calculateExtraColumns = (rows: RowData[], routeData: RouteData): Ro
 
     let timeOfEndOfMovement: DateTime | null = null;
     const timeToExtraIntoDestinationAreaIfNeeded = depthOfConvoy > row.depthOfDestinationArea ? (depthOfConvoy - row.depthOfDestinationArea) / row.speedOfExtraction : 0;
-    const timeToGetIntoDestinationArea = row.depthOfDestinationArea / row.speed;
+    const timeToGetIntoDestinationArea = (row.depthOfDestinationArea + row.distToDestinationArea) / row.speed;
     // We assume that they all move and start extracting into their own destination areas when they cross lengthOfRoute
     if (whenPrevConvoyCrossedTheThreshold === null) {
       // Revert to when X convoy ended arriving into its own destination area
@@ -55,11 +55,10 @@ export const calculateExtraColumns = (rows: RowData[], routeData: RouteData): Ro
       (routeData.lengthOfRoute / row.speed) + routeData.stops.reduce((acc, stop) => acc + stop.duration, 0);
 
     const timeToPassPointOfDeparture_convoyEnd =
-      timeOfEndOfMovement.minus({
+      whenPrevConvoyCrossedTheThreshold.minus({
         hours: totalTimeToPassRoute,
       });
 
-    //
     const timeToPassPointOfDeparture_convoyStart = timeToPassPointOfDeparture_convoyEnd.minus({ hours: depthOfConvoy / row.speed });
     const timeOfStartOfMovement = timeToPassPointOfDeparture_convoyStart.minus({
       hours:
