@@ -64,6 +64,7 @@ export const columnNames = {
   speed: "Швидкість руху (V - рух) (км. / год.)",
 
   depthOfConvoy: "Глибина колони (км.)",
+  depthOfDestinationArea: "Глибина району призначення (км.)",
   timeToPassPointOfDeparture_convoyStart:
     "Час проходження вихідного пункту (Голова колонни) (год. хв.)",
   timeToPassPointOfDeparture_convoyEnd:

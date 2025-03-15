@@ -15,6 +15,7 @@ export const calculateExtraColumns = (rows: RowData[], routeData: RouteData): Ro
   const sumDist: number[] = [];
   const sumTime: number[] = [];
   let prevRow = null;
+  let whenPrevConvoyCrossedTheThreshold: DateTime | null = null; // = when X convoy crossed lengthOfRoute
   for (let r = rows.length - 1; r >= 0; r--) {
     const row = rows[r];
 
@@ -25,22 +26,30 @@ export const calculateExtraColumns = (rows: RowData[], routeData: RouteData): Ro
       row.distBetweenVehicles,
     );
 
-    let timeToExtractIntoDestination = 0;
-    if (routeData.depthOfFullConvoy > routeData.depthOfDestinationArea && prevRow) {
-      // Time to extract into destination from first division end to convoy end
+    let timeOfEndOfMovement: DateTime | null = null;
+    const timeToExtraIntoDestinationAreaIfNeeded = depthOfConvoy > row.depthOfDestinationArea ? (depthOfConvoy - row.depthOfDestinationArea) / row.speedOfExtraction : 0;
+    const timeToGetIntoDestinationArea = row.depthOfDestinationArea / row.speed;
+    // We assume that they all move and start extracting into their own destination areas when they cross lengthOfRoute
+    if (whenPrevConvoyCrossedTheThreshold === null) {
+      // Revert to when X convoy ended arriving into its own destination area
+      whenPrevConvoyCrossedTheThreshold = routeData.directiveTimeOfEndOfMovement.minus({ // prev relative to next convoy in cycle
+        hours: timeToExtraIntoDestinationAreaIfNeeded + timeToGetIntoDestinationArea,
+      });
 
-      timeToExtractIntoDestination = (prevRow.depthOfConvoy / prevRow.speedOfExtraction) + prevRow.distToNextConvoy / prevRow.speed;
+      timeOfEndOfMovement = routeData.directiveTimeOfEndOfMovement;
+    } else {
+      if(!prevRow) throw new Error('prevRow is null');
 
-      // console.log(`${(timeToExtractIntoDestination * 60).toFixed(2)}хв. = (${prevRow.depthOfConvoy} / ${prevRow.speedOfExtraction}) + (${prevRow.distToNextConvoy} / ${prevRow.speed})`);
+      // We take previous time when prev convoy ended arriving into its own destination area (which = when it crosses lengthOfRoute)
+      // and revert it to moment when start of X + 1 convoy crossed the lengthOfRoute threshold
+      whenPrevConvoyCrossedTheThreshold = whenPrevConvoyCrossedTheThreshold.minus({ // prev relative to next convoy in cycle
+        hours: (depthOfConvoy + prevRow.distToNextConvoy) / row.speed,
+      });
+
+      timeOfEndOfMovement = whenPrevConvoyCrossedTheThreshold.plus({
+        hours: timeToGetIntoDestinationArea + timeToExtraIntoDestinationAreaIfNeeded,
+      });
     }
-
-    // Time when end of convoy enters destination area
-    const timeOfEndOfMovement = initialTimeOfEndOfMovement.minus({
-      hours: timeToExtractIntoDestination,
-    });
-
-    // console.log('New time of end of movement');
-    // console.log(timeOfEndOfMovement.toFormat('HH год. mm хв. dd.MM.yyyy'));
 
     totalTimeToPassRoute =
       (routeData.lengthOfRoute / row.speed) + routeData.stops.reduce((acc, stop) => acc + stop.duration, 0);

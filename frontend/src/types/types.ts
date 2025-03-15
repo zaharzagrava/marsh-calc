@@ -91,6 +91,7 @@ export const defaultElem: RowData = {
   speed: 25,
 
   depthOfConvoy: 0,
+  depthOfDestinationArea: 10,
   timeToPassPointOfDeparture_convoyStart: DateTime.now(),
   timeToPassPointOfDeparture_convoyEnd: DateTime.now(),
   timeOfStartOfMovement: DateTime.now(),
@@ -174,6 +175,8 @@ export interface RowData extends DivisionGraphInfo {
   topAdditionalDivision?: DivisionGraphInfo;
   bottomAdditionalDivision?: DivisionGraphInfo;
 
+  depthOfDestinationArea: number;
+
   // Calculated data
   depthOfConvoy: number;
   timeToPassPointOfDeparture_convoyStart: DateTime;
@@ -256,6 +259,7 @@ export const defaultRouteDataEx1: RoutesDto = {
           "speedOfExtraction": 15,
           "speed": 25,
           "depthOfConvoy": 1.2,
+          "depthOfDestinationArea": 10,
         },
         {
           "leftBottomAmplificator": "2",
@@ -282,6 +286,7 @@ export const defaultRouteDataEx1: RoutesDto = {
           "speedOfExtraction": 15,
           "speed": 25,
           "depthOfConvoy": 2.7,
+          "depthOfDestinationArea": 10,
         },
         {
           "leftBottomAmplificator": "2",
@@ -308,6 +313,7 @@ export const defaultRouteDataEx1: RoutesDto = {
           "speedOfExtraction": 15,
           "speed": 25,
           "depthOfConvoy": 1.9,
+          "depthOfDestinationArea": 10,
         },
         {
           "leftBottomAmplificator": "1",
@@ -334,6 +340,7 @@ export const defaultRouteDataEx1: RoutesDto = {
           "speedOfExtraction": 15,
           "speed": 25,
           "depthOfConvoy": 6.05,
+          "depthOfDestinationArea": 10,
         },
         {
           "leftBottomAmplificator": "зрадн",
@@ -359,6 +366,7 @@ export const defaultRouteDataEx1: RoutesDto = {
           "speedOfExtraction": 15,
           "speed": 25,
           "depthOfConvoy": 1.8,
+          "depthOfDestinationArea": 10,
         },
         {
           "leftBottomAmplificator": "птадн",
@@ -384,6 +392,7 @@ export const defaultRouteDataEx1: RoutesDto = {
           "speedOfExtraction": 15,
           "speed": 25,
           "depthOfConvoy": 1.8,
+          "depthOfDestinationArea": 10,
         },
         {
           "leftBottomAmplificator": "2",
@@ -410,6 +419,7 @@ export const defaultRouteDataEx1: RoutesDto = {
           "speedOfExtraction": 15,
           "speed": 25,
           "depthOfConvoy": 1.2,
+          "depthOfDestinationArea": 10,
         },
         {
           "leftBottomAmplificator": "",
@@ -435,6 +445,7 @@ export const defaultRouteDataEx1: RoutesDto = {
           "speedOfExtraction": 15,
           "speed": 25,
           "depthOfConvoy": 2.2,
+          "depthOfDestinationArea": 10,
         },
         {
           "leftBottomAmplificator": "",
@@ -460,6 +471,7 @@ export const defaultRouteDataEx1: RoutesDto = {
           "speedOfExtraction": 15,
           "speed": 25,
           "depthOfConvoy": 0.3,
+          "depthOfDestinationArea": 10,
         },
         {
           "leftBottomAmplificator": "ррвб",
@@ -485,6 +497,7 @@ export const defaultRouteDataEx1: RoutesDto = {
           "speedOfExtraction": 15,
           "speed": 25,
           "depthOfConvoy": 1.55,
+          "depthOfDestinationArea": 10,
         }
       ],
       "routeData": {
@@ -569,6 +582,7 @@ export const defaultRouteDataEx1: RoutesDto = {
           "speedOfExtraction": 15,
           "speed": 25,
           "depthOfConvoy": 5.45,
+          "depthOfDestinationArea": 10,
         },
         {
           "leftBottomAmplificator": "2",
@@ -595,6 +609,7 @@ export const defaultRouteDataEx1: RoutesDto = {
           "speedOfExtraction": 15,
           "speed": 25,
           "depthOfConvoy": 0.6,
+          "depthOfDestinationArea": 10,
         },
         {
           "leftBottomAmplificator": "3",
@@ -621,6 +636,7 @@ export const defaultRouteDataEx1: RoutesDto = {
           "speedOfExtraction": 15,
           "speed": 25,
           "depthOfConvoy": 4.7,
+          "depthOfDestinationArea": 10,
         },
         {
           "leftBottomAmplificator": "тб",
@@ -646,6 +662,7 @@ export const defaultRouteDataEx1: RoutesDto = {
           "speedOfExtraction": 15,
           "speed": 25,
           "depthOfConvoy": 3.35,
+          "depthOfDestinationArea": 10,
         },
         {
           "leftBottomAmplificator": "заб",
@@ -671,6 +688,7 @@ export const defaultRouteDataEx1: RoutesDto = {
           "speedOfExtraction": 15,
           "speed": 25,
           "depthOfConvoy": 1.75,
+          "depthOfDestinationArea": 10,
         },
         {
           "leftBottomAmplificator": "реадн",
@@ -697,6 +715,7 @@ export const defaultRouteDataEx1: RoutesDto = {
           "speedOfExtraction": 15,
           "speed": 25,
           "depthOfConvoy": 2.05,
+          "depthOfDestinationArea": 10,
         },
         {
           "leftBottomAmplificator": "рреб",
@@ -711,7 +730,8 @@ export const defaultRouteDataEx1: RoutesDto = {
           "topImageType": "line-1",
           "mainImageTypes": [
             "empty",
-            "ew"
+            "ew",
+            "3-waves-facing-bot"
           ],
           "isUplifted": false,
           "unitName": "рреб",
@@ -722,6 +742,7 @@ export const defaultRouteDataEx1: RoutesDto = {
           "speedOfExtraction": 15,
           "speed": 25,
           "depthOfConvoy": 1.25,
+          "depthOfDestinationArea": 10,
         },
         {
           "leftBottomAmplificator": "ррхбз",
@@ -747,6 +768,7 @@ export const defaultRouteDataEx1: RoutesDto = {
           "speedOfExtraction": 15,
           "speed": 25,
           "depthOfConvoy": 1.15,
+          "depthOfDestinationArea": 10,
         },
         {
           "leftBottomAmplificator": "бмз",
@@ -760,7 +782,8 @@ export const defaultRouteDataEx1: RoutesDto = {
           "centerAmplificator": "",
           "topImageType": "line-2",
           "mainImageTypes": [
-            "empty"
+            "empty",
+            "bot-hor-line"
           ],
           "isUplifted": false,
           "unitName": "бмз",
@@ -771,6 +794,7 @@ export const defaultRouteDataEx1: RoutesDto = {
           "speedOfExtraction": 15,
           "speed": 25,
           "depthOfConvoy": 5.7,
+          "depthOfDestinationArea": 10,
         }
       ],
       "routeData": {
